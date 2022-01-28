@@ -1,15 +1,15 @@
-﻿using Assets.Scripts.Presentation.Entities;
-using Helpers;
-using Helpers.Promises;
-using DG.Tweening;
+﻿using DG.Tweening;
 using SharedData;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Tactics.View.Entities;
+using Tactics.Helpers;
+using Tactics.Helpers.Promises;
 
-namespace Assets.Scripts
+namespace Tactics.Battle
 {
     [SelectionBase]
     public class Entity : MonoBehaviour

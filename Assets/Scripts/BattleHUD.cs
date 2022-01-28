@@ -1,11 +1,11 @@
-﻿using Assets.Scripts;
-using DG.Tweening;
+﻿using DG.Tweening;
 using System;
+using Tactics.Battle;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace UI
+namespace Tactics
 {
     public class BattleHUD : MonoBehaviour
     {

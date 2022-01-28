@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-namespace Helpers.Promises
+namespace Tactics.Helpers.Promises
 {
     public abstract class BaseDeferred : IPromise
     {

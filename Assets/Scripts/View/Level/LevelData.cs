@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
-using Assets.Scripts;
-using Assets.Scripts.Presentation.Entities;
+﻿using System;
+using System.Collections.Generic;
+using Tactics.Battle;
+using Tactics.View.Level;
 
-namespace Helpers
+namespace Tactics.Helpers
 {
-	public class LevelData
-	{
-		public int Width;
-		public int Height;
-		public TileView[,] Tiles;
-		public List<Entity> Entities;
+    public class LevelData
+    {
+        public int Width;
+        public int Height;
+        public TileView[,] Tiles;
+        public List<Entity> Entities;
         public Entity[,] TilesEntities;
     }
 }

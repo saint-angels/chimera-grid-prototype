@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Tactics
 {
     public static class ResourcesManager
     {

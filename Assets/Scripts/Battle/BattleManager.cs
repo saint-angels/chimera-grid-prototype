@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Presentation.Entities;
-using Helpers;
-using Helpers.Promises;
-using UI;
+using Tactics;
 using SharedData;
 using UnityEngine;
+using Tactics.Helpers;
+using Tactics.Helpers.Promises;
 
-namespace Assets.Scripts
+namespace Tactics.Battle
 {
     public class BattleManager : MonoBehaviour
     {

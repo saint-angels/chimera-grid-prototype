@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Helpers;
-using Helpers.Promises;
 using DG.Tweening;
 using SharedData;
 using UnityEngine;
+using Tactics.Battle;
+using Tactics.Helpers;
 
-namespace Assets.Scripts.Presentation.Entities
+namespace Tactics.View.Entities
 {
     public class EntityView : MonoBehaviour
     {
@@ -18,7 +18,7 @@ namespace Assets.Scripts.Presentation.Entities
         public GameObject HealthBarContainer;
         public GameObject HealthBar;
 
-        private AudioComponent audio;
+        private new AudioComponent audio;
         private Entity entityOwner;
         private LevelService levelService;
 

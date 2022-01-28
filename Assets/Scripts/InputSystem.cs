@@ -1,12 +1,12 @@
-﻿using Assets.Scripts.Presentation.Entities;
-using Helpers;
-using SharedData;
+﻿using SharedData;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Tactics.Battle;
+using Tactics.Helpers;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Tactics
 {
     public class InputSystem : MonoBehaviour
     {

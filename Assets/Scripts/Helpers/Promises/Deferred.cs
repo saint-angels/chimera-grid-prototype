@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Helpers.Promises
+namespace Tactics.Helpers.Promises
 {
     public class Deferred : BaseDeferred, IPromise
     {
@@ -123,7 +123,7 @@ namespace Helpers.Promises
             {
                 int promisesToComplete = collection.Count;
 
-                foreach(IPromise element in collection)
+                foreach (IPromise element in collection)
                 {
                     element.Done(() =>
                     {

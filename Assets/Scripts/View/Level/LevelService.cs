@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts;
-using Assets.Scripts.Presentation;
 using DG.Tweening;
 using SharedData;
+using Tactics.Battle;
+using Tactics.View;
+using Tactics.View.Level;
 using UnityEngine;
 
-namespace Helpers
+namespace Tactics.Helpers
 {
     public class LevelService
     {

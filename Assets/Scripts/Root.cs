@@ -2,12 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Tactics.Battle;
 
-namespace Assets.Scripts
+namespace Tactics
 {
     public class Root : MonoBehaviour
     {
-        [SerializeField] private UI.BattleHUD hud;
+        [SerializeField] private Tactics.BattleHUD hud;
         [SerializeField] private BattleManager battleManager;
 
         void Awake()

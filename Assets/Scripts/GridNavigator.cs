@@ -1,14 +1,14 @@
-﻿using Assets.Scripts.Presentation.Entities;
-using Helpers;
-using Pathfinding;
+﻿using Pathfinding;
 using SharedData;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Tactics.Battle;
+using Tactics.Helpers;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Tactics
 {
     public class GridNavigator : MonoBehaviour
     {

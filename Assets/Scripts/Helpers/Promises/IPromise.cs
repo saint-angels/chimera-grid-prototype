@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Helpers.Promises
+namespace Tactics.Helpers.Promises
 {
     public interface IPromise
     {
