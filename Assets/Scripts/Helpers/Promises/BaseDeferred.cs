@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
-namespace Backgammon.Helpers.Promises
+namespace Helpers.Promises
 {
     public abstract class BaseDeferred : IPromise
     {

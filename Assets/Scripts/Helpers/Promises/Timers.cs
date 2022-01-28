@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Backgammon.Helpers.Promises
+namespace Helpers.Promises
 {
     public class Timers : MonoBehaviour, ITimers
     {
@@ -23,8 +23,6 @@ namespace Backgammon.Helpers.Promises
 
         public static ITimers Instance { get; private set; }
 
-        private readonly Queue<Action> mainThreadActionsQueue = new Queue<Action>();
-
         private void Awake()
         {
             Instance = this;
@@ -32,18 +30,11 @@ namespace Backgammon.Helpers.Promises
 
         private void Update()
         {
-            lock (mainThreadActionsQueue)
-            {
-                while (mainThreadActionsQueue.Count > 0)
-                {
-                    mainThreadActionsQueue.Dequeue().Invoke();
-                }
-            }
             for (int i = 0; i < awaiters.Count; i++)
             {
                 Awaiter candidate = awaiters[i];
 
-                float currentTime = candidate.unscaledTime ? Time.realtimeSinceStartup : Time.time;
+                float currentTime = candidate.unscaledTime ? Time.unscaledTime : Time.time;
 
                 if (currentTime >= candidate.finishTime)
                 {
@@ -70,8 +61,12 @@ namespace Backgammon.Helpers.Promises
             }
 
             OnTimeUpdate(Time.time);
-            OnTimeUnscaledUpdate(Time.realtimeSinceStartup);
+            OnTimeUnscaledUpdate(Time.unscaledTime);
         }
+
+        public float GetTime() { return Time.time; }
+
+        public float GetTimeUnscaled() { return Time.unscaledTime; }
 
         public IPromise WaitOneFrame()
         {
@@ -99,7 +94,7 @@ namespace Backgammon.Helpers.Promises
             awaiters.Add(new Awaiter
             {
                 duration = seconds,
-                finishTime = Time.realtimeSinceStartup + seconds,
+                finishTime = Time.unscaledTime + seconds,
                 unscaledTime = true,
                 additionalCondition = null,
                 progressCallback = progressCallback,
@@ -114,21 +109,13 @@ namespace Backgammon.Helpers.Promises
             awaiters.Add(new Awaiter
             {
                 duration = 0f,
-                finishTime = Time.realtimeSinceStartup,
+                finishTime = Time.unscaledTime,
                 unscaledTime = true,
                 additionalCondition = condition,
                 progressCallback = null,
                 resolver = deferred,
             });
             return deferred;
-        }
-
-        public void WaitForMainThread(Action action)
-        {
-            lock (mainThreadActionsQueue)
-            {
-                mainThreadActionsQueue.Enqueue(action);
-            }
         }
     }
 }

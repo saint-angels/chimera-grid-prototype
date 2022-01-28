@@ -1,0 +1,46 @@
+-------------------------------------------------------------------------------
+A summary of things that I'm proud of, as well as things that could be improved.
+-------------------------------------------------------------------------------
+
+Implemented:
+- [Must have] The game should be playable from the Unity editor using a mouse.
+- [Must have] As a player, I should be able to take turns.
+- [Must have] As a player, I should be able to move characters.
+- [Nice to have] As a player, I should be able to attack opponents.
+- [Nice to have] The opponents should be AI controlled.
+
+First of all, I really don't get how existing scripts support the decoupling of presentation and game logic.
+EntityType or LevelData are inside "Presentation" folder, but both, I would argue, are very much not presentation.
+Even if you want to simulate the battle without visuals, you need them. Maybe I just don't get what "presentation" is.
+This really confused me, so I tried to decouple game logic/visuals mostly for new entities I created, without refactoring much of the old ones.
+
+-------------------------------------------------------------------------------
+Proud of:
+-------------------------------------------------------------------------------
+- Entity & it's view are separated. Entity doesn't even need to know its position in the world, only GridPosition.
+
+- Grid navigation is decoupled from general logic. Though it was foolish to use such a complex plugin for A* navigation, I would've spent much less time by setuping my own graph structure with simple Dijkstra pathfinding.
+
+-------------------------------------------------------------------------------
+Things that could be improved:
+-------------------------------------------------------------------------------
+- Interaction between Entity and EntityView:
+Right now, after starting an Entity action(move, attack, etc), BattleManager/Entity isn't very good at waiting for EntityView to finish playing all it's visual animations.
+I imagine a new class - CommandsPlayer, that records everything entity needs to do after user input(or AI), then plays them through EntityView.
+BattleManager would wait for CommandsPlayer to finish, without directly depending on the visuals.
+That way the Entity & EntityView would be independent, and a list of commands is a neat way to potentially transmit battle state between network clients or record it.
+
+- Entity components
+Now there is only one class for all entities. 
+The better way for a flexible system would be to create multiple small components, each one representing some property.
+Then, for every interaction you can filter objects that have the corresponding component. 
+For example, an entity with Attack component can damage any entity wtih Health component.
+
+- Settings
+For entity settings, a spriptable object injected into entity after its creation would be nice. They could be loaded by an isolated ResourceManager, no one else needs to know how to directly load these settings(or entities prefabs).
+
+- Battle HUD Manager, 
+A hud manager, encompassing all the logic for showing/hiding any entity hud elements(selections/breadcrumbs) would be neat.
+
+- LevelService refactoring
+Really confusing class, doing the tracking/instantiating of entities, playing animations, holding level data.. That's too much. Would be better to separate these functions into different classes.

@@ -1,0 +1,53 @@
+-------------------------------------------------------------------------------
+Rovio RPG Code Test
+-------------------------------------------------------------------------------
+
+Try to complete this test within 2 weeks. Once completed, please write a summary of things that you are proud of, as well as things that could be improved.
+
+The project contains the visual layer (graphics and effects) of a turn based RPG.
+Your task is to design the core game systems and models that drives the visual layer.
+This means that you should focus your time on game logic and spend as little time as possible on visuals.
+The scene file Main.scene demonstrates how to interact with the visual layer (code available in LevelComponent.Update()).
+NOTE: You are allowed to use third-party libraries.
+
+Code requirements (this is the most important part to focus on and what we primarily validate when reviewing your code)
+- Your code must follow the KISS and SOLID principles.
+- Its better to have multiple smaller classes with specific responsibilities rather then larger classes that does a lot.
+- Decouple dependencies as much as possible.
+- Prioritize code over visual tools. If you spend time on tools, thats time that could have been used to give us more code to review and make a better judgement of your skills.
+- Do not hardcode gameplay variables into your models. For example, its better to set health of a character from the outside (injecting it) rather than hardcoding a default private value within the character model.
+- Do not add concepts such as "Armor" or "Sword" directly into a character. These are also gameplay rules that should not be hardcoded. What happens if you would need to support 100 unique type of items for a character? This needs to be dynamic.
+- Do not to implement your game logic in the existing services and models within the Assets/Scripts/Presentation folder since we want to decouple presentation logic from game logic. You can however, extend the existing services if there is visual logic missing for your specific implementation.
+
+Gameplay requirements
+- [Must have] The game should be playable from the Unity editor using a mouse.
+- [Must have] As a player, I should be able to take turns.
+- [Must have] As a player, I should be able to move characters.
+- [Nice to have] As a player, I should be able to attack opponents.
+- [Nice to have] The opponents should be AI controlled.
+
+Gameplay rules example (you do not have to follow these, but they can help you to get started with something)
+- Characters have 2 actions per turn. Move and/or attack. They can be triggered in any order.
+- Characters can move up to 6 tiles in any direction.
+- Characters can not pass through tiles with obstacles or other characters.
+- Character movement can be implemented in one of the following ways:
+	- Clicking a character should mark that character as selected and display breadcrumbs for all tiles within walking distance.
+- Enemies within attack range should be marked with the attack target selection.
+- Characters have 2 health points.
+- Basic attacks do 1 damage.
+- When all characters in a team have 0 health points, the game ends.
+
+Bonus features (if you have time to spare)
+- Abilities
+	- Weapons that increases damage.
+	- Armor that reduces damage.
+	- Poison attacks (damage that activates over several turns).
+	- Heal spell.
+	- Revive spell.
+	- Cure (poison) spell.
+- Custom levels.
+- Ranged attacks.
+- Attacks that trigger the quake effect.
+- Different enemies.
+
+-------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Backgammon.Helpers.Promises
+namespace Helpers.Promises
 {
     public class Deferred : BaseDeferred, IPromise
     {
@@ -15,14 +15,11 @@ namespace Backgammon.Helpers.Promises
 
         ~Deferred()
         {
-            lock (poolQueue)
+            if (poolQueue.Contains(this) == false)
             {
-                if (poolQueue.Contains(this) == false)
-                {
-                    Reset();
-                    poolQueue.Enqueue(this);
-                    GC.ReRegisterForFinalize(this);
-                }
+                Reset();
+                poolQueue.Enqueue(this);
+                GC.ReRegisterForFinalize(this);
             }
         }
 
@@ -33,21 +30,19 @@ namespace Backgammon.Helpers.Promises
                 CreatedCount++;
                 return new Deferred();
             }
-            lock (poolQueue)
-            {
-                var element = poolQueue.Dequeue();
-                if (element == null)
-                {
-                    return new Deferred();
-                }
 
-                return element;
+            var element = poolQueue.Dequeue();
+            if (element == null)
+            {
+                return new Deferred();
             }
+
+            return element;
         }
 
         public static IPromise Rejected(string reason, params object[] args)
         {
-            return GetFromPool().Reject(reason, args);
+            return GetFromPool().Reject(new Exception(string.Format(reason, args)));
         }
 
         public IPromise Resolve()
@@ -71,15 +66,7 @@ namespace Backgammon.Helpers.Promises
 
         public IPromise Reject(string reason, params object[] args)
         {
-            try
-            {
-                return Reject(new Exception(string.Format(reason, args)));
-            }
-            catch (Exception e)
-            {
-                UnityEngine.Debug.LogError(e.Message);
-                return Reject(new Exception(reason));
-            }
+            return Reject(new Exception(string.Format(reason, args)));
         }
 
         public IPromise Reject(Exception exception)
@@ -136,7 +123,7 @@ namespace Backgammon.Helpers.Promises
             {
                 int promisesToComplete = collection.Count;
 
-                foreach (IPromise element in collection)
+                foreach(IPromise element in collection)
                 {
                     element.Done(() =>
                     {
@@ -402,11 +389,6 @@ namespace Backgammon.Helpers.Promises
             return this;
         }
 
-        public IPromise<T1, T2> Reject(string reason, params object[] args)
-        {
-            return Reject(new Exception(string.Format(reason, args)));
-        }
-
         public IPromise<T1, T2> Reject(Exception exception)
         {
             if (CurrentState != States.Pending)
@@ -443,3 +425,4 @@ namespace Backgammon.Helpers.Promises
         }
     }
 }
+

@@ -1,6 +1,5 @@
 ﻿using System;
-
-namespace Backgammon.Helpers.Promises
+namespace Helpers.Promises
 {
     public interface IPromise
     {
