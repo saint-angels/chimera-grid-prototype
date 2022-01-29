@@ -9,7 +9,6 @@ namespace Tactics.SharedData
     {
         public int Width;
         public int Height;
-        public TileView[,] Tiles;
         public List<Entity> Entities;
         public Entity[,] TilesEntities;
     }

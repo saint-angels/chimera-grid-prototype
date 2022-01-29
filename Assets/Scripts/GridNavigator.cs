@@ -17,7 +17,7 @@ namespace Tactics
         private BlockManager blockManager;
         private Dictionary<Entity, SingleNodeBlocker> characterNodeBlockers = new Dictionary<Entity, SingleNodeBlocker>(); //TODO: Clear on char death
 
-        public void Init(LevelView levelService)
+        public void Init(LevelView levelService, BattleManager battleManager)
         {
             this.levelService = levelService;
 
@@ -28,7 +28,7 @@ namespace Tactics
             graph.limits = new Vector3(GridHelper.TileSize.x, GridHelper.TileSize.y);
             graph.Scan();
 
-            foreach (var character in levelService.GetCharacters())
+            foreach (var character in battleManager.GetCharacters())
             {
                 var nodeBlocker = character.gameObject.AddComponent<SingleNodeBlocker>();
                 nodeBlocker.manager = blockManager;
@@ -51,7 +51,7 @@ namespace Tactics
             {
                 Vector3 nodeWorldPosition = (Vector3)node.position;
                 Vector2Int nodeGridPosition = GridHelper.ToGridCoordinatesFloor(nodeWorldPosition.x, nodeWorldPosition.y);
-                Entity entityAtNode = levelService.GetEntityAtPosition(nodeGridPosition.x, nodeGridPosition.y);
+                Entity entityAtNode = battleManager.GetEntityAtPosition(nodeGridPosition.x, nodeGridPosition.y);
                 if (entityAtNode != null && entityAtNode.Type == EntityType.Obstacle)
                 {
                     node.Walkable = false;

@@ -23,7 +23,7 @@ namespace Tactics.Battle
         public Action<bool> OnBattleOver = (userWon) => { };
         public Action OnPlayerTurnEnded = () => { };
 
-        private LevelView levelService;
+        private LevelView levelView;
 
         private Entity selectedCharacter;
 
@@ -31,35 +31,72 @@ namespace Tactics.Battle
         private List<Entity> movablePlayerCharacters = new List<Entity>();
         private List<Entity> attackingPlayerCharacters = new List<Entity>();
 
+        private LevelData LevelData;
+
         public void Init(BattleHUD hud, InputSystem inputSystem)
         {
-
             var levelText = Resources.Load<TextAsset>($"Levels/Level2").text;
             string[] rows = levelText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
             int width = int.Parse(rows[0]);
             int height = int.Parse(rows[1]);
 
-            var levelData = new LevelData
+            LevelData = new LevelData
             {
                 Width = width,
                 Height = height,
-                Tiles = new TileView[width, height],
                 Entities = new List<Entity>(),
                 TilesEntities = new Entity[width, height]
             };
 
             // Load the level
-            levelService = new LevelView();
+            levelView = new LevelView();
             GridNavigator gridNavigator = GetComponent<GridNavigator>() ?? gameObject.AddComponent<GridNavigator>();
-            levelService.Init(this, gridNavigator, levelData, rows);
+            levelView.Init(this, gridNavigator, LevelData, rows);
+            //TODO: Check why grid navigator needs to be inited after level view
+            gridNavigator.Init(levelView, this);
 
             hud.OnEndTurnClicked += OnEndTurnClicked;
 
             inputSystem.OnCharacterClicked += OnCharacterClicked;
             inputSystem.OnEmptyTileClicked += OnEmptyTileClicked;
-            inputSystem.Init(levelService);
+            inputSystem.Init(levelView);
 
             StartPlayerTurn();
+        }
+
+        public List<Entity> GetCharacters(EntityFaction? filterFaction = null)
+        {
+            return LevelData.Entities
+                .Where(e =>
+                    {
+                        bool factionCheck = true;
+                        if (filterFaction.HasValue)
+                        {
+                            factionCheck = filterFaction.Value == e.Faction;
+                        }
+                        bool typeCheck = e.Type == EntityType.Character;
+                        return factionCheck && typeCheck;
+                    })
+                .ToList();
+        }
+
+        //Note: there could be only 1 entity at each tile at a time.
+        public Entity GetEntityAtPosition(int x, int y)
+        {
+            if (IsPointOnLevelGrid(x, y))
+            {
+                return LevelData.TilesEntities[x, y];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public bool IsPointOnLevelGrid(int x, int y)
+        {
+            bool outOfGridBounds = x >= LevelData.Width || x < 0 || y >= LevelData.Height || y < 0;
+            return outOfGridBounds == false;
         }
 
         private void SetState(TurnState newTurnState)
@@ -71,7 +108,7 @@ namespace Tactics.Battle
         {
             movablePlayerCharacters.Clear();
             attackingPlayerCharacters.Clear();
-            movablePlayerCharacters.AddRange(levelService.GetCharacters(EntityFaction.Player));
+            movablePlayerCharacters.AddRange(GetCharacters(EntityFaction.Player));
             attackingPlayerCharacters.AddRange(movablePlayerCharacters);
 
             SetState(TurnState.UserIdle);
@@ -80,7 +117,7 @@ namespace Tactics.Battle
         private IPromise PlayEnemyTurn()
         {
             List<IPromise> enemyTurnPromises = new List<IPromise>();
-            var enemies = levelService.GetCharacters(EntityFaction.Enemy);
+            var enemies = GetCharacters(EntityFaction.Enemy);
             foreach (var enemy in enemies)
             {
                 enemyTurnPromises.Add(enemy.MakeAITurn());
@@ -161,8 +198,8 @@ namespace Tactics.Battle
 
         private void CheckForGameOver()
         {
-            var enemyCharacters = levelService.GetCharacters(EntityFaction.Enemy);
-            var playerCharacters = levelService.GetCharacters(EntityFaction.Player);
+            var enemyCharacters = GetCharacters(EntityFaction.Enemy);
+            var playerCharacters = GetCharacters(EntityFaction.Player);
 
             if (enemyCharacters.Count == 0)
             {

@@ -36,6 +36,8 @@ namespace Tactics.View.Level
 
         private float stepDuration = .2f;
 
+        private TileView[,] Tiles;
+
         public LevelView()
         {
             tileSprites = Resources.LoadAll<Sprite>("Sprites/Tileset");
@@ -51,20 +53,61 @@ namespace Tactics.View.Level
             audio = GameObject.Find("Audio").GetComponent<AudioComponent>();
         }
 
-        public List<Entity> GetCharacters(EntityFaction? filterFaction = null)
+        public void Init(BattleManager battleManager, GridNavigator gridNavigator, LevelData levelData, string[] rows)
         {
-            return LevelData.Entities
-                .Where(e =>
+            this.gridNavigator = gridNavigator;
+            this.battlemanager = battleManager;
+            battleManager.OnPlayerTurnEnded += OnPlayerTurnEnded;
+
+            int width = levelData.Width;
+            int height = levelData.Height;
+            GridSize = new Vector2Int(width, height);
+
+            Tiles = new TileView[width, height];
+
+            this.LevelData = levelData;
+            // Ground
+            for (int y = 0; y < height; y++)
+            {
+                var row = rows[3 + y];
+
+                for (int x = 0; x < width; x++)
+                {
+                    var tile = int.Parse(row[x].ToString()) - 1;
+                    InstantiateTile(x, y, tile);
+                }
+            }
+
+            // Entities
+            Sprite entitySprite;
+            for (int y = 0; y < height; y++)
+            {
+                var row = rows[4 + height + y];
+
+                for (int x = 0; x < width; x++)
+                {
+                    Vector2Int gridPosition = new Vector2Int(x, y);
+                    switch (row[x])
                     {
-                        bool factionCheck = true;
-                        if (filterFaction.HasValue)
-                        {
-                            factionCheck = filterFaction.Value == e.Faction;
-                        }
-                        bool typeCheck = e.Type == EntityType.Character;
-                        return factionCheck && typeCheck;
-                    })
-                .ToList();
+                        case 'e':
+                            entitySprite = entitySprites[UnityEngine.Random.Range(0, 5)];
+                            InstantiateEntity(gridPosition, entitySprite, EntityType.Character, EntityFaction.Enemy);
+                            break;
+
+                        case 'p':
+                            entitySprite = entitySprites[UnityEngine.Random.Range(5, 10)];
+                            InstantiateEntity(gridPosition, entitySprite, EntityType.Character, EntityFaction.Player);
+                            break;
+
+                        case '#':
+                            entitySprite = tileSprites[49];
+                            InstantiateEntity(gridPosition, entitySprite, EntityType.Obstacle, EntityFaction.Neutral);
+                            break;
+                    }
+                }
+            }
+
+            CenterCamera(height);
         }
 
         public Entity GetClosestCharacter(Vector2Int targetPosition, EntityFaction faction)
@@ -131,61 +174,6 @@ namespace Tactics.View.Level
             return entitiesList;
         }
 
-        public void Init(BattleManager battlemanager, GridNavigator gridNavigator, LevelData levelData, string[] rows)
-        {
-            this.gridNavigator = gridNavigator;
-            this.battlemanager = battlemanager;
-            battlemanager.OnPlayerTurnEnded += OnPlayerTurnEnded;
-
-            int width = levelData.Width;
-            int height = levelData.Height;
-            GridSize = new Vector2Int(width, height);
-
-            this.LevelData = levelData;
-            // Ground
-            for (int y = 0; y < height; y++)
-            {
-                var row = rows[3 + y];
-
-                for (int x = 0; x < width; x++)
-                {
-                    var tile = int.Parse(row[x].ToString()) - 1;
-                    InstantiateTile(x, y, tile);
-                }
-            }
-
-            // Entities
-            Sprite entitySprite;
-            for (int y = 0; y < height; y++)
-            {
-                var row = rows[4 + height + y];
-
-                for (int x = 0; x < width; x++)
-                {
-                    Vector2Int gridPosition = new Vector2Int(x, y);
-                    switch (row[x])
-                    {
-                        case 'e':
-                            entitySprite = entitySprites[UnityEngine.Random.Range(0, 5)];
-                            InstantiateEntity(gridPosition, entitySprite, EntityType.Character, EntityFaction.Enemy);
-                            break;
-
-                        case 'p':
-                            entitySprite = entitySprites[UnityEngine.Random.Range(5, 10)];
-                            InstantiateEntity(gridPosition, entitySprite, EntityType.Character, EntityFaction.Player);
-                            break;
-
-                        case '#':
-                            entitySprite = tileSprites[49];
-                            InstantiateEntity(gridPosition, entitySprite, EntityType.Obstacle, EntityFaction.Neutral);
-                            break;
-                    }
-                }
-            }
-
-            gridNavigator.Init(this);
-            CenterCamera(height);
-        }
 
         private void CenterCamera(int levelHeight)
         {
@@ -208,7 +196,7 @@ namespace Tactics.View.Level
 
             tile.transform.localPosition = GridHelper.ToWorldCoordinates(x, y);
 
-            LevelData.Tiles[x, y] = tile.GetComponent<TileView>();
+            Tiles[x, y] = tile.GetComponent<TileView>();
         }
 
         private void InstantiateEntity(Vector2Int gridPosition, Sprite sprite, EntityType type, EntityFaction faction)
@@ -255,7 +243,7 @@ namespace Tactics.View.Level
 
         public void SetBreadCrumbVisible(int x, int y, bool isVisible, float delay = 0)
         {
-            LevelData.Tiles[x, y].SetBreadCrumbVisible(isVisible, delay);
+            Tiles[x, y].SetBreadCrumbVisible(isVisible, delay);
         }
 
         private void HideAllAttackTargetSelections()
@@ -272,7 +260,7 @@ namespace Tactics.View.Level
             {
                 for (int x = 0; x < LevelData.Width; x++)
                 {
-                    LevelData.Tiles[x, y].SetBreadCrumbVisible(false);
+                    Tiles[x, y].SetBreadCrumbVisible(false);
                 }
             }
         }
@@ -307,7 +295,7 @@ namespace Tactics.View.Level
 
                     if (distance <= radius)
                     {
-                        var tile = LevelData.Tiles[x2, y2].transform;
+                        var tile = Tiles[x2, y2].transform;
                         var originalY = tile.position.y;
 
                         var delay = (distance * 0.25f) * 0.5f;
