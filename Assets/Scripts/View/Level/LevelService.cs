@@ -129,27 +129,17 @@ namespace Tactics.Helpers
             return entitiesList;
         }
 
-        public void Init(string levelName, BattleManager battlemanager, GridNavigator gridNavigator)
+        public void Init(BattleManager battlemanager, GridNavigator gridNavigator, LevelData levelData, string[] rows)
         {
             this.gridNavigator = gridNavigator;
             this.battlemanager = battlemanager;
             battlemanager.OnPlayerTurnEnded += OnPlayerTurnEnded;
 
-            var levelText = Resources.Load<TextAsset>($"Levels/{levelName}").text;
-            var rows = levelText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            var width = int.Parse(rows[0]);
-            var height = int.Parse(rows[1]);
+            int width = levelData.Width;
+            int height = levelData.Height;
             GridSize = new Vector2Int(width, height);
 
-            LevelData = new LevelData
-            {
-                Width = width,
-                Height = height,
-                Tiles = new TileView[width, height],
-                Entities = new List<Entity>(),
-                TilesEntities = new Entity[width, height]
-            };
-
+            this.LevelData = levelData;
             // Ground
             for (int y = 0; y < height; y++)
             {

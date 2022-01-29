@@ -6,6 +6,7 @@ using SharedData;
 using UnityEngine;
 using Tactics.Helpers;
 using Tactics.Helpers.Promises;
+using Tactics.View.Level;
 
 namespace Tactics.Battle
 {
@@ -31,10 +32,25 @@ namespace Tactics.Battle
 
         public void Init(BattleHUD hud, InputSystem inputSystem)
         {
+
+            var levelText = Resources.Load<TextAsset>($"Levels/Level2").text;
+            string[] rows = levelText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            int width = int.Parse(rows[0]);
+            int height = int.Parse(rows[1]);
+
+            var levelData = new LevelData
+            {
+                Width = width,
+                Height = height,
+                Tiles = new TileView[width, height],
+                Entities = new List<Entity>(),
+                TilesEntities = new Entity[width, height]
+            };
+
             // Load the level
             levelService = new LevelService();
             GridNavigator gridNavigator = GetComponent<GridNavigator>() ?? gameObject.AddComponent<GridNavigator>();
-            levelService.Init("Level2", this, gridNavigator);
+            levelService.Init(this, gridNavigator, levelData, rows);
 
             hud.OnEndTurnClicked += OnEndTurnClicked;
 
