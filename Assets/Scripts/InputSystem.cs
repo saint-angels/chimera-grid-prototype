@@ -15,11 +15,11 @@ namespace Tactics
         public event Action<Vector2Int> OnEmptyTileClicked = (coordinates) => { };
         public event Action OnOutOfBoundsClick = () => { };
 
-        private LevelView levelService;
+        private BattleManager battleManager;
 
-        public void Init(LevelView levelService)
+        public void Init(BattleManager battleManager)
         {
-            this.levelService = levelService;
+            this.battleManager = battleManager;
         }
 
         void Update()
@@ -29,10 +29,10 @@ namespace Tactics
                 Vector2Int clickedCoordinates = GridHelper.MouseToGridCoordinates();
                 //print("Clicked on " + clickedCoordinates);
 
-                bool isPointOnLevelGrid = levelService.IsPointOnLevelGrid(clickedCoordinates.x, clickedCoordinates.y);
+                bool isPointOnLevelGrid = battleManager.IsPointOnLevelGrid(clickedCoordinates.x, clickedCoordinates.y);
                 if (isPointOnLevelGrid)
                 {
-                    Entity clickedEntity = levelService.GetEntityAtPosition(clickedCoordinates.x, clickedCoordinates.y);
+                    Entity clickedEntity = battleManager.GetEntityAtPosition(clickedCoordinates.x, clickedCoordinates.y);
                     if (clickedEntity != null)
                     {
                         if (clickedEntity.Type == EntityType.Character)

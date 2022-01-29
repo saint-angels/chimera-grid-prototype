@@ -53,13 +53,13 @@ namespace Tactics.Battle
             GridNavigator gridNavigator = GetComponent<GridNavigator>() ?? gameObject.AddComponent<GridNavigator>();
             levelView.Init(this, gridNavigator, LevelData, rows);
             //TODO: Check why grid navigator needs to be inited after level view
-            gridNavigator.Init(levelView, this);
+            gridNavigator.Init(this);
 
             hud.OnEndTurnClicked += OnEndTurnClicked;
 
+            inputSystem.Init(this);
             inputSystem.OnCharacterClicked += OnCharacterClicked;
             inputSystem.OnEmptyTileClicked += OnEmptyTileClicked;
-            inputSystem.Init(levelView);
 
             StartPlayerTurn();
         }

@@ -31,7 +31,7 @@ namespace Tactics.View.Level
         private float quakeAnimationCooldown;
         private AudioComponent audio;
 
-        private BattleManager battlemanager;
+        private BattleManager battleManager;
         private GridNavigator gridNavigator;
 
         private float stepDuration = .2f;
@@ -56,7 +56,7 @@ namespace Tactics.View.Level
         public void Init(BattleManager battleManager, GridNavigator gridNavigator, LevelData levelData, string[] rows)
         {
             this.gridNavigator = gridNavigator;
-            this.battlemanager = battleManager;
+            this.battleManager = battleManager;
             battleManager.OnPlayerTurnEnded += OnPlayerTurnEnded;
 
             int width = levelData.Width;
@@ -123,25 +123,6 @@ namespace Tactics.View.Level
             return LevelData.Entities;
         }
 
-        public bool IsPointOnLevelGrid(int x, int y)
-        {
-            bool outOfGridBounds = x >= GridSize.x || x < 0 || y >= GridSize.y || y < 0;
-            return outOfGridBounds == false;
-        }
-
-        //Note: there could be only 1 entity at each tile at a time.
-        public Entity GetEntityAtPosition(int x, int y)
-        {
-            if (IsPointOnLevelGrid(x, y))
-            {
-                return LevelData.TilesEntities[x, y];
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         public List<Entity> GetEntitiesInRange(Entity attacker, EntityFaction targetFaction)
         {
             int range = attacker.AttackRange;
@@ -153,7 +134,7 @@ namespace Tactics.View.Level
             for (int xOffset = -range; xOffset <= range; xOffset++)
             {
                 Vector2Int offsetPosition = new Vector2Int(position.x + xOffset, position.y);
-                Entity entity = GetEntityAtPosition(offsetPosition.x, offsetPosition.y);
+                Entity entity = battleManager.GetEntityAtPosition(offsetPosition.x, offsetPosition.y);
                 if (entity != null && entity != attacker && entity.Faction == targetFaction)
                 {
                     entitiesList.Add(entity);
@@ -164,7 +145,7 @@ namespace Tactics.View.Level
             for (int yOffset = -range; yOffset <= range; yOffset++)
             {
                 Vector2Int offsetPosition = new Vector2Int(position.x, position.y + yOffset);
-                Entity entity = GetEntityAtPosition(offsetPosition.x, offsetPosition.y);
+                Entity entity = battleManager.GetEntityAtPosition(offsetPosition.x, offsetPosition.y);
                 if (entity != null && entity != attacker && entity.Faction == targetFaction)
                 {
                     entitiesList.Add(entity);

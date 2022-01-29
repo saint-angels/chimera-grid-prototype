@@ -13,13 +13,13 @@ namespace Tactics
 {
     public class GridNavigator : MonoBehaviour
     {
-        private LevelView levelService;
         private BlockManager blockManager;
         private Dictionary<Entity, SingleNodeBlocker> characterNodeBlockers = new Dictionary<Entity, SingleNodeBlocker>(); //TODO: Clear on char death
+        private BattleManager battleManager;
 
-        public void Init(LevelView levelService, BattleManager battleManager)
+        public void Init(BattleManager battleManager)
         {
-            this.levelService = levelService;
+            this.battleManager = battleManager;
 
             blockManager = GetComponent<BlockManager>() ?? gameObject.AddComponent<BlockManager>();
 
@@ -130,7 +130,7 @@ namespace Tactics
                         }
                         Vector3 neighbourWorldPosition = (Vector3)neighbour.position;
                         Vector2Int neigbourGridCoordinates = GridHelper.ToGridCoordinatesFloor(neighbourWorldPosition.x, neighbourWorldPosition.y);
-                        Entity entityAtNode = levelService.GetEntityAtPosition(neigbourGridCoordinates.x, neigbourGridCoordinates.y);
+                        Entity entityAtNode = battleManager.GetEntityAtPosition(neigbourGridCoordinates.x, neigbourGridCoordinates.y);
                         bool nodeAcceptable = onlyEmptyNodes == false || entityAtNode == null;
                         if (nodeAcceptable)
                         {
