@@ -13,9 +13,9 @@ namespace Tactics.Battle
     {
         enum TurnState
         {
-            USER_IDLE,
-            USER_CHAR_SELECTED,
-            ACTION_IN_PROGRESS,
+            UserIdle,
+            UserCharSelected,
+            ActionInProgress,
         }
 
         public Action<bool> OnBattleOver = (userWon) => { };
@@ -61,7 +61,7 @@ namespace Tactics.Battle
             movablePlayerCharacters.AddRange(levelService.GetCharacters(EntityFaction.Player));
             attackingPlayerCharacters.AddRange(movablePlayerCharacters);
 
-            SetState(TurnState.USER_IDLE);
+            SetState(TurnState.UserIdle);
         }
 
         private IPromise PlayEnemyTurn()
@@ -80,7 +80,7 @@ namespace Tactics.Battle
         private void OnEndTurnClicked()
         {
             OnPlayerTurnEnded();
-            SetState(TurnState.ACTION_IN_PROGRESS);
+            SetState(TurnState.ActionInProgress);
             PlayEnemyTurn().Done(() => StartPlayerTurn());
         }
 
@@ -88,13 +88,13 @@ namespace Tactics.Battle
         {
             switch (turnState)
             {
-                case TurnState.USER_IDLE:
+                case TurnState.UserIdle:
                     if (clickedCharacter.Faction == EntityFaction.Player)
                     {
                         SelectUserCharacter(clickedCharacter);
                     }
                     break;
-                case TurnState.USER_CHAR_SELECTED:
+                case TurnState.UserCharSelected:
                     switch (clickedCharacter.Faction)
                     {
                         case EntityFaction.Player:
@@ -123,12 +123,12 @@ namespace Tactics.Battle
         {
             switch (turnState)
             {
-                case TurnState.USER_IDLE:
+                case TurnState.UserIdle:
                     break;
-                case TurnState.USER_CHAR_SELECTED:
+                case TurnState.UserCharSelected:
                     if (selectedCharacter.CanMove(gridPosition))
                     {
-                        SetState(TurnState.ACTION_IN_PROGRESS);
+                        SetState(TurnState.ActionInProgress);
                         var movingCharacter = selectedCharacter;
 
                         movingCharacter.Move(gridPosition)
@@ -169,7 +169,7 @@ namespace Tactics.Battle
             bool movementAllowed = movablePlayerCharacters.Contains(selectedCharacter);
             bool attackAllowed = attackingPlayerCharacters.Contains(selectedCharacter);
             selectedCharacter.Select(movementAllowed, attackAllowed);
-            SetState(TurnState.USER_CHAR_SELECTED);
+            SetState(TurnState.UserCharSelected);
         }
     }
 }
