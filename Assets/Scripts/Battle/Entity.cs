@@ -41,11 +41,13 @@ namespace Tactics.Battle
         private float stepDuration;
         private LevelView levelService;
         private GridNavigator gridNavigator;
+        private BattleManager battleManager;
 
-        public void Init(Vector2Int gridPosition, GridNavigator gridNavigator, Sprite sprite, EntityType type, EntityFaction faction, LevelView levelService)
+        public void Init(Vector2Int gridPosition, BattleManager battleManager, GridNavigator gridNavigator, Sprite sprite, EntityType type, EntityFaction faction, LevelView levelService)
         {
             this.levelService = levelService;
             this.gridNavigator = gridNavigator;
+            this.battleManager = battleManager;
             GridPosition = gridPosition;
             Type = type;
             Faction = faction;
@@ -69,7 +71,7 @@ namespace Tactics.Battle
             bool attackSuccess = TryAttackFractionInRange(opposingFaction);
             if (attackSuccess == false)
             {
-                Entity closestPlayerCharacter = levelService.GetClosestCharacter(GridPosition, opposingFaction);
+                Entity closestPlayerCharacter = battleManager.GetClosestCharacter(GridPosition, opposingFaction);
                 if (closestPlayerCharacter != null)
                 {
                     List<Vector2Int> path = gridNavigator.GetPath(this, closestPlayerCharacter.GridPosition, MaxWalkDistance, closestPlayerCharacter);
@@ -133,7 +135,7 @@ namespace Tactics.Battle
             if (attackAllowed)
             {
                 EntityFaction opposingFaction = Faction == EntityFaction.Player ? EntityFaction.Enemy : EntityFaction.Player;
-                List<Entity> entitiesInRange = levelService.GetEntitiesInRange(this, opposingFaction);
+                List<Entity> entitiesInRange = battleManager.GetEntitiesInRange(this, opposingFaction);
                 foreach (Entity entity in entitiesInRange)
                 {
                     entity.SetTargeted(true);
@@ -173,7 +175,7 @@ namespace Tactics.Battle
 
         private bool TryAttackFractionInRange(EntityFaction targetFaction)
         {
-            List<Entity> entitiesInRange = levelService.GetEntitiesInRange(this, targetFaction);
+            List<Entity> entitiesInRange = battleManager.GetEntitiesInRange(this, targetFaction);
             if (entitiesInRange.Count > 0)
             {
                 Attack(entitiesInRange[0]);

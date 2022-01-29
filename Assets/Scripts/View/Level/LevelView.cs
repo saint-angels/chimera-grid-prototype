@@ -110,51 +110,10 @@ namespace Tactics.View.Level
             CenterCamera(height);
         }
 
-        public Entity GetClosestCharacter(Vector2Int targetPosition, EntityFaction faction)
-        {
-            return LevelData.Entities
-                        .Where(p => p.Type == EntityType.Character && p.Faction == faction)
-                        .OrderBy((entity) => Vector2Int.Distance(targetPosition, entity.GridPosition))
-                        .FirstOrDefault();
-        }
-
         public List<Entity> GetEntities()
         {
             return LevelData.Entities;
         }
-
-        public List<Entity> GetEntitiesInRange(Entity attacker, EntityFaction targetFaction)
-        {
-            int range = attacker.AttackRange;
-            Vector2Int position = attacker.GridPosition;
-
-            List<Entity> entitiesList = new List<Entity>();
-
-            //Check x axis
-            for (int xOffset = -range; xOffset <= range; xOffset++)
-            {
-                Vector2Int offsetPosition = new Vector2Int(position.x + xOffset, position.y);
-                Entity entity = battleManager.GetEntityAtPosition(offsetPosition.x, offsetPosition.y);
-                if (entity != null && entity != attacker && entity.Faction == targetFaction)
-                {
-                    entitiesList.Add(entity);
-                }
-            }
-
-            //Check y axis
-            for (int yOffset = -range; yOffset <= range; yOffset++)
-            {
-                Vector2Int offsetPosition = new Vector2Int(position.x, position.y + yOffset);
-                Entity entity = battleManager.GetEntityAtPosition(offsetPosition.x, offsetPosition.y);
-                if (entity != null && entity != attacker && entity.Faction == targetFaction)
-                {
-                    entitiesList.Add(entity);
-                }
-            }
-
-            return entitiesList;
-        }
-
 
         private void CenterCamera(int levelHeight)
         {
@@ -184,7 +143,7 @@ namespace Tactics.View.Level
         {
             Entity newEntity = GameObject.Instantiate(entityPrefab, Vector3.zero, Quaternion.identity, entitiesContainer);
             newEntity.name = type.ToString();
-            newEntity.Init(gridPosition, gridNavigator, sprite, type, faction, this);
+            newEntity.Init(gridPosition, battleManager, gridNavigator, sprite, type, faction, this);
             if (type == EntityType.Character)
             {
                 string pathToConfig = "Configs/" + "DefaultCharacterConfig";

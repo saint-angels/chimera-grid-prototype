@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ef8bb184-c28c-4684-b024-31b9cf746d75" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.chimera-grid-prototype/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.chimera-grid-prototype/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Battle/Level.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Battle/Level.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,9 +11,6 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Battle/Level.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -64,7 +59,7 @@
       <option name="presentableId" value="Default" />
       <updated>1643381343327</updated>
       <workItem from="1643381344733" duration="1672000" />
-      <workItem from="1643479201942" duration="1625000" />
+      <workItem from="1643479201942" duration="2224000" />
     </task>
     <servers />
   </component>

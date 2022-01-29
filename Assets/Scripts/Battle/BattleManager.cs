@@ -93,6 +93,46 @@ namespace Tactics.Battle
             }
         }
 
+        public List<Entity> GetEntitiesInRange(Entity attacker, EntityFaction targetFaction)
+        {
+            int range = attacker.AttackRange;
+            Vector2Int position = attacker.GridPosition;
+
+            List<Entity> entitiesList = new List<Entity>();
+
+            //Check x axis
+            for (int xOffset = -range; xOffset <= range; xOffset++)
+            {
+                Vector2Int offsetPosition = new Vector2Int(position.x + xOffset, position.y);
+                Entity entity = GetEntityAtPosition(offsetPosition.x, offsetPosition.y);
+                if (entity != null && entity != attacker && entity.Faction == targetFaction)
+                {
+                    entitiesList.Add(entity);
+                }
+            }
+
+            //Check y axis
+            for (int yOffset = -range; yOffset <= range; yOffset++)
+            {
+                Vector2Int offsetPosition = new Vector2Int(position.x, position.y + yOffset);
+                Entity entity = GetEntityAtPosition(offsetPosition.x, offsetPosition.y);
+                if (entity != null && entity != attacker && entity.Faction == targetFaction)
+                {
+                    entitiesList.Add(entity);
+                }
+            }
+
+            return entitiesList;
+        }
+
+        public Entity GetClosestCharacter(Vector2Int targetPosition, EntityFaction faction)
+        {
+            return LevelData.Entities
+                        .Where(p => p.Type == EntityType.Character && p.Faction == faction)
+                        .OrderBy((entity) => Vector2Int.Distance(targetPosition, entity.GridPosition))
+                        .FirstOrDefault();
+        }
+
         public bool IsPointOnLevelGrid(int x, int y)
         {
             bool outOfGridBounds = x >= LevelData.Width || x < 0 || y >= LevelData.Height || y < 0;
