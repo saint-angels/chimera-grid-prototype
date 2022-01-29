@@ -22,8 +22,6 @@ namespace Tactics.Battle
         public Action OnPlayerTurnEnded = () => { };
 
         private LevelService levelService;
-        private BattleHUD hud;
-        private InputSystem inputSystem;
 
         private Entity selectedCharacter;
 
@@ -31,20 +29,18 @@ namespace Tactics.Battle
         private List<Entity> movablePlayerCharacters = new List<Entity>();
         private List<Entity> attackingPlayerCharacters = new List<Entity>();
 
-        private void Start()
+        public void Init(BattleHUD hud, InputSystem inputSystem)
         {
             // Load the level
             levelService = new LevelService();
             GridNavigator gridNavigator = GetComponent<GridNavigator>() ?? gameObject.AddComponent<GridNavigator>();
             levelService.Init("Level2", this, gridNavigator);
 
-            hud = GameObject.Find("Canvas").GetComponent<BattleHUD>();
             hud.OnEndTurnClicked += OnEndTurnClicked;
 
-            inputSystem = GetComponent<InputSystem>() ?? gameObject.AddComponent<InputSystem>();
-            inputSystem.Init(levelService);
             inputSystem.OnCharacterClicked += OnCharacterClicked;
             inputSystem.OnEmptyTileClicked += OnEmptyTileClicked;
+            inputSystem.Init(levelService);
 
             StartPlayerTurn();
         }

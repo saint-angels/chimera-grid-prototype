@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Tactics.Battle;
+using Tactics.Helpers;
 
 namespace Tactics
 {
@@ -10,10 +11,12 @@ namespace Tactics
     {
         [SerializeField] private Tactics.BattleHUD hud;
         [SerializeField] private BattleManager battleManager;
+        [SerializeField] private InputSystem input;
 
-        void Awake()
+        void Start()
         {
             hud.Init(battleManager);
+            battleManager.Init(hud, input);
         }
 
     }
