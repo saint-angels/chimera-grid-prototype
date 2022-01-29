@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Tactics.Battle;
 using Tactics.Helpers;
+using Tactics.View.Level;
 using UnityEngine;
 
 namespace Tactics
@@ -14,9 +15,9 @@ namespace Tactics
         public event Action<Vector2Int> OnEmptyTileClicked = (coordinates) => { };
         public event Action OnOutOfBoundsClick = () => { };
 
-        private LevelService levelService;
+        private LevelView levelService;
 
-        public void Init(LevelService levelService)
+        public void Init(LevelView levelService)
         {
             this.levelService = levelService;
         }

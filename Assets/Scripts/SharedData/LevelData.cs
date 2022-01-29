@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Tactics.Battle;
 using Tactics.View.Level;
 
-namespace Tactics.Helpers
+namespace Tactics.SharedData
 {
     public class LevelData
     {

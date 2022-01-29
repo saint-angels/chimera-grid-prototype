@@ -8,6 +8,7 @@ using UnityEngine;
 using Tactics.View.Entities;
 using Tactics.Helpers;
 using Tactics.Helpers.Promises;
+using Tactics.View.Level;
 
 namespace Tactics.Battle
 {
@@ -38,10 +39,10 @@ namespace Tactics.Battle
 
         private int maxHealth;
         private float stepDuration;
-        private LevelService levelService;
+        private LevelView levelService;
         private GridNavigator gridNavigator;
 
-        public void Init(Vector2Int gridPosition, GridNavigator gridNavigator, Sprite sprite, EntityType type, EntityFaction faction, LevelService levelService)
+        public void Init(Vector2Int gridPosition, GridNavigator gridNavigator, Sprite sprite, EntityType type, EntityFaction faction, LevelView levelService)
         {
             this.levelService = levelService;
             this.gridNavigator = gridNavigator;

@@ -7,6 +7,7 @@ using UnityEngine;
 using Tactics.Helpers;
 using Tactics.Helpers.Promises;
 using Tactics.View.Level;
+using Tactics.SharedData;
 
 namespace Tactics.Battle
 {
@@ -22,7 +23,7 @@ namespace Tactics.Battle
         public Action<bool> OnBattleOver = (userWon) => { };
         public Action OnPlayerTurnEnded = () => { };
 
-        private LevelService levelService;
+        private LevelView levelService;
 
         private Entity selectedCharacter;
 
@@ -48,7 +49,7 @@ namespace Tactics.Battle
             };
 
             // Load the level
-            levelService = new LevelService();
+            levelService = new LevelView();
             GridNavigator gridNavigator = GetComponent<GridNavigator>() ?? gameObject.AddComponent<GridNavigator>();
             levelService.Init(this, gridNavigator, levelData, rows);
 

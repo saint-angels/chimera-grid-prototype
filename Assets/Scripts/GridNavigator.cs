@@ -6,17 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Tactics.Battle;
 using Tactics.Helpers;
+using Tactics.View.Level;
 using UnityEngine;
 
 namespace Tactics
 {
     public class GridNavigator : MonoBehaviour
     {
-        private LevelService levelService;
+        private LevelView levelService;
         private BlockManager blockManager;
         private Dictionary<Entity, SingleNodeBlocker> characterNodeBlockers = new Dictionary<Entity, SingleNodeBlocker>(); //TODO: Clear on char death
 
-        public void Init(LevelService levelService)
+        public void Init(LevelView levelService)
         {
             this.levelService = levelService;
 

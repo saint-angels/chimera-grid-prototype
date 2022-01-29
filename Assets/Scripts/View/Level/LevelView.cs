@@ -4,13 +4,15 @@ using System.Linq;
 using DG.Tweening;
 using SharedData;
 using Tactics.Battle;
+using Tactics.Helpers;
+using Tactics.SharedData;
 using Tactics.View;
 using Tactics.View.Level;
 using UnityEngine;
 
-namespace Tactics.Helpers
+namespace Tactics.View.Level
 {
-    public class LevelService
+    public class LevelView
     {
         public LevelData LevelData;
 
@@ -34,7 +36,7 @@ namespace Tactics.Helpers
 
         private float stepDuration = .2f;
 
-        public LevelService()
+        public LevelView()
         {
             tileSprites = Resources.LoadAll<Sprite>("Sprites/Tileset");
             tilePrefab = Resources.Load<GameObject>("Prefabs/Tile");

@@ -6,6 +6,7 @@ using SharedData;
 using UnityEngine;
 using Tactics.Battle;
 using Tactics.Helpers;
+using Tactics.View.Level;
 
 namespace Tactics.View.Entities
 {
@@ -20,14 +21,14 @@ namespace Tactics.View.Entities
 
         private new AudioComponent audio;
         private Entity entityOwner;
-        private LevelService levelService;
+        private LevelView levelService;
 
         private void Awake()
         {
             audio = GameObject.Find("Audio").GetComponent<AudioComponent>();
         }
 
-        public void Init(Entity entityOwner, Sprite sprite, EntityType type, Vector2Int gridPosition, LevelService levelService)
+        public void Init(Entity entityOwner, Sprite sprite, EntityType type, Vector2Int gridPosition, LevelView levelService)
         {
             this.levelService = levelService;
             this.entityOwner = entityOwner;
