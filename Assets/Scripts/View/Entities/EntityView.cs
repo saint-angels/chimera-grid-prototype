@@ -19,14 +19,8 @@ namespace Tactics.View.Entities
         public GameObject HealthBarContainer;
         public GameObject HealthBar;
 
-        private new AudioComponent audio;
         private Entity entityOwner;
         private LevelView levelService;
-
-        private void Awake()
-        {
-            audio = GameObject.Find("Audio").GetComponent<AudioComponent>();
-        }
 
         public void Init(Entity entityOwner,
                          Sprite sprite,
@@ -79,7 +73,7 @@ namespace Tactics.View.Entities
                     .OnComplete(() =>
                     {
                         Renderer.sortingOrder = GridHelper.GetSortingOrder(to.x, to.y);
-                        audio.PlayMove();
+                        Root.Audio.PlayMove();
                     });
         }
 
@@ -89,7 +83,7 @@ namespace Tactics.View.Entities
                 .OnStart(() =>
                 {
                     InstantiateSlash(entityOwner.GridPosition.x, entityOwner.GridPosition.y);
-                    audio.PlayTakeDamage();
+                    Root.Audio.PlayTakeDamage();
                 })
                 .OnComplete(() =>
                 {
@@ -108,7 +102,7 @@ namespace Tactics.View.Entities
             if (isSelected)
             {
                 Selection.gameObject.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.5f);
-                audio.PlaySelect();
+                Root.Audio.PlaySelect();
 
                 levelService.HideAllBreadCrumbs();
                 foreach (var moveTargetPosition in selectedEntity.possibleMoveTargets)
@@ -126,7 +120,7 @@ namespace Tactics.View.Entities
             {
                 AttackTargetSelection.gameObject.transform.localScale = Vector3.one;
                 AttackTargetSelection.gameObject.transform.DOScale(new Vector3(1.2f, 1.2f, 1f), 0.5f).SetEase(Ease.OutQuint).SetLoops(int.MaxValue, LoopType.Yoyo);
-                audio.PlaySelectTarget();
+                Root.Audio.PlaySelectTarget();
             }
             else
             {
@@ -149,7 +143,7 @@ namespace Tactics.View.Entities
                     });
                 });
 
-            audio.PlayDeath();
+            Root.Audio.PlayDeath();
         }
 
         private void InstantiateSlash(int x, int y)

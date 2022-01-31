@@ -558,6 +558,7 @@ MonoBehaviour:
   hud: {fileID: 1341918030}
   battleManager: {fileID: 1048485227}
   input: {fileID: 1048485228}
+  audio: {fileID: 1671504753}
 --- !u!114 &1048485227
 MonoBehaviour:
   m_ObjectHideFlags: 0
