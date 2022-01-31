@@ -34,13 +34,23 @@ namespace Tactics.View.Entities
 
             entityOwner.OnDamaged += OnEntityDamaged;
             entityOwner.OnDestroyed += OnEntityDestroyed;
-            entityOwner.OnSelected += OnEntitySelected;
             entityOwner.OnTargeted += OnEntityTargeted;
             entityOwner.OnStep += OnEntityStep;
 
             battleManager.OnCharacterAttack += () =>
             {
                 HideTargetVisuals();
+            };
+
+            battleManager.OnEntitySelected += (entity, isSelected) =>
+            {
+                bool ownerSelected = entity == entityOwner && isSelected;
+                Selection.gameObject.SetActive(ownerSelected);
+                if (ownerSelected)
+                {
+                    Selection.gameObject.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.5f);
+                    Root.Audio.PlaySelect();
+                }
             };
 
             Renderer.sortingOrder = GridHelper.GetSortingOrder(gridPosition.x, gridPosition.y);
@@ -52,11 +62,6 @@ namespace Tactics.View.Entities
                 HealthBar.transform.localScale = Vector3.one;
             }
             transform.position = GridHelper.ToWorldCoordinates(gridPosition);
-        }
-
-        public void Deselect()
-        {
-            OnEntitySelected(entityOwner, false);
         }
 
         public void HideTargetVisuals()
@@ -93,23 +98,6 @@ namespace Tactics.View.Entities
             float clampedHealthPercentage = Mathf.Clamp01(currentHealthPercentage);
             HealthBarContainer.transform.DOShakePosition(0.5f, new Vector3(0.1f, 0.1f, 0));
             HealthBar.transform.DOScaleX(clampedHealthPercentage, 0.25f);
-        }
-
-        private void OnEntitySelected(Entity selectedEntity, bool isSelected)
-        {
-            Selection.gameObject.SetActive(isSelected);
-
-            if (isSelected)
-            {
-                Selection.gameObject.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.5f);
-                Root.Audio.PlaySelect();
-
-                levelService.HideAllBreadCrumbs();
-                foreach (var moveTargetPosition in selectedEntity.possibleMoveTargets)
-                {
-                    levelService.SetBreadCrumbVisible(moveTargetPosition.x, moveTargetPosition.y, true);
-                }
-            }
         }
 
         private void OnEntityTargeted(bool state)

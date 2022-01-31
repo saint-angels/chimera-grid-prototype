@@ -24,6 +24,7 @@ namespace Tactics.Battle
         public Action OnPlayerTurnEnded = () => { };
         public Action OnCharacterAttack = () => { };
         public Action OnCharacterMoved = () => { };
+        public Action<Entity, bool> OnEntitySelected = (entity, isSelected) => { };
 
         private LevelView levelView;
 
@@ -129,13 +130,7 @@ namespace Tactics.Battle
                 };
                 newEntity.OnSelected += (selectedEntity, isSelected) =>
                 {
-                    foreach (var entity in LevelData.Entities)
-                    {
-                        if (entity != selectedEntity)
-                        {
-                            entity.EntityView.Deselect();
-                        }
-                    }
+                    OnEntitySelected(selectedEntity, isSelected);
                 };
                 newEntity.OnAttack += () => OnCharacterAttack();
             }

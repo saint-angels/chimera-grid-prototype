@@ -64,6 +64,18 @@ namespace Tactics.View.Level
                 HideAllBreadCrumbs();
             };
 
+            battleManager.OnEntitySelected += (entity, isSelected) =>
+            {
+                HideAllBreadCrumbs();
+                if (isSelected)
+                {
+                    foreach (var moveTargetPosition in entity.possibleMoveTargets)
+                    {
+                        SetBreadCrumbVisible(moveTargetPosition.x, moveTargetPosition.y, true);
+                    }
+                }
+            };
+
             int width = levelData.Width;
             int height = levelData.Height;
             GridSize = new Vector2Int(width, height);
