@@ -48,7 +48,12 @@ namespace Tactics.View.Level
         {
             this.gridNavigator = gridNavigator;
             this.battleManager = battleManager;
-            battleManager.OnPlayerTurnEnded += OnPlayerTurnEnded;
+            battleManager.OnPlayerTurnEnded += () =>
+            {
+                HideAllAttackTargetSelections();
+                HideAllBreadCrumbs();
+            };
+
             battleManager.OnCharacterAttack += () =>
             {
                 HideAllBreadCrumbs();
@@ -109,14 +114,6 @@ namespace Tactics.View.Level
 
             Tiles[x, y] = tile.GetComponent<TileView>();
         }
-
-
-        private void OnPlayerTurnEnded()
-        {
-            HideAllAttackTargetSelections();
-            HideAllBreadCrumbs();
-        }
-
 
         public void SetBreadCrumbVisible(int x, int y, bool isVisible, float delay = 0)
         {

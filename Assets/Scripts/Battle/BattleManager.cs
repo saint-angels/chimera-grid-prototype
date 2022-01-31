@@ -52,7 +52,6 @@ namespace Tactics.Battle
                 TilesEntities = new Entity[width, height]
             };
 
-            // Load the level
             levelView = new LevelView();
             GridNavigator gridNavigator = GetComponent<GridNavigator>() ?? gameObject.AddComponent<GridNavigator>();
             levelView.Init(this, gridNavigator, LevelData, rows);
@@ -117,37 +116,31 @@ namespace Tactics.Battle
                 string pathToConfig = "Configs/" + "DefaultCharacterConfig";
                 var config = Resources.Load<CharacterConfig>(pathToConfig);
                 newEntity.AddCharacterParams(config);
-                newEntity.OnMovementFinished += OnEntityMoved;
-                newEntity.OnDestroyed += OnEntityDestroyed;
-                newEntity.OnSelected += OnEntitySelected;
+                newEntity.OnMovementFinished += (entity, oldPosition, newPosition) =>
+                {
+                    LevelData.TilesEntities[oldPosition.x, oldPosition.y] = null;
+                    LevelData.TilesEntities[newPosition.x, newPosition.y] = entity;
+                    OnCharacterMoved();
+                };
+                newEntity.OnDestroyed += (entity) =>
+                {
+                    LevelData.Entities.Remove(entity);
+                    LevelData.TilesEntities[entity.GridPosition.x, entity.GridPosition.y] = null;
+                };
+                newEntity.OnSelected += (selectedEntity, isSelected) =>
+                {
+                    foreach (var entity in LevelData.Entities)
+                    {
+                        if (entity != selectedEntity)
+                        {
+                            entity.EntityView.Deselect();
+                        }
+                    }
+                };
                 newEntity.OnAttack += () => OnCharacterAttack();
             }
             LevelData.Entities.Add(newEntity);
             LevelData.TilesEntities[gridPosition.x, gridPosition.y] = newEntity;
-        }
-
-        private void OnEntitySelected(Entity selectedEntity, bool isSelected)
-        {
-            foreach (var entity in LevelData.Entities)
-            {
-                if (entity != selectedEntity)
-                {
-                    entity.EntityView.Deselect();
-                }
-            }
-        }
-
-        private void OnEntityDestroyed(Entity entity)
-        {
-            LevelData.Entities.Remove(entity);
-            LevelData.TilesEntities[entity.GridPosition.x, entity.GridPosition.y] = null;
-        }
-
-        private void OnEntityMoved(Entity entity, Vector2Int oldPosition, Vector2Int newPosition)
-        {
-            LevelData.TilesEntities[oldPosition.x, oldPosition.y] = null;
-            LevelData.TilesEntities[newPosition.x, newPosition.y] = entity;
-            OnCharacterMoved();
         }
 
         public List<Entity> GetCharacters(EntityFaction? filterFaction = null)
@@ -166,7 +159,7 @@ namespace Tactics.Battle
                 .ToList();
         }
 
-        //Note: there could be only 1 entity at each tile at a time.
+        //There could be only 1 entity at each tile at a time.
         public Entity GetEntityAtPosition(int x, int y)
         {
             if (IsPointOnLevelGrid(x, y))
