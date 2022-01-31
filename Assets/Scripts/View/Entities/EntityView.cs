@@ -28,7 +28,12 @@ namespace Tactics.View.Entities
             audio = GameObject.Find("Audio").GetComponent<AudioComponent>();
         }
 
-        public void Init(Entity entityOwner, Sprite sprite, EntityType type, Vector2Int gridPosition, LevelView levelService)
+        public void Init(Entity entityOwner,
+                         Sprite sprite,
+                         EntityType type,
+                         Vector2Int gridPosition,
+                         LevelView levelService,
+                         BattleManager battleManager)
         {
             this.levelService = levelService;
             this.entityOwner = entityOwner;
@@ -38,6 +43,11 @@ namespace Tactics.View.Entities
             entityOwner.OnSelected += OnEntitySelected;
             entityOwner.OnTargeted += OnEntityTargeted;
             entityOwner.OnStep += OnEntityStep;
+
+            battleManager.OnCharacterAttack += () =>
+            {
+                HideTargetVisuals();
+            };
 
             Renderer.sortingOrder = GridHelper.GetSortingOrder(gridPosition.x, gridPosition.y);
             Renderer.sprite = sprite;

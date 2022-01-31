@@ -22,9 +22,12 @@ namespace Tactics.Battle
 
         public Action<bool> OnBattleOver = (userWon) => { };
         public Action OnPlayerTurnEnded = () => { };
+        public Action OnCharacterAttack = () => { };
+        public Action OnCharacterMoved = () => { };
 
         private LevelView levelView;
 
+        private Entity entityPrefab;
         private Entity selectedCharacter;
 
         private TurnState turnState;
@@ -35,6 +38,7 @@ namespace Tactics.Battle
 
         public void Init(BattleHUD hud, InputSystem inputSystem)
         {
+            entityPrefab = Resources.Load<Entity>("Prefabs/Entity");
             var levelText = Resources.Load<TextAsset>($"Levels/Level2").text;
             string[] rows = levelText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
             int width = int.Parse(rows[0]);
@@ -52,6 +56,39 @@ namespace Tactics.Battle
             levelView = new LevelView();
             GridNavigator gridNavigator = GetComponent<GridNavigator>() ?? gameObject.AddComponent<GridNavigator>();
             levelView.Init(this, gridNavigator, LevelData, rows);
+
+            // Entities
+            var entitySprites = Resources.LoadAll<Sprite>("Sprites/Entities");
+            var tileSprites = Resources.LoadAll<Sprite>("Sprites/Tileset");
+            Sprite entitySprite;
+            for (int y = 0; y < height; y++)
+            {
+                var row = rows[4 + height + y];
+
+                for (int x = 0; x < width; x++)
+                {
+                    Vector2Int gridPosition = new Vector2Int(x, y);
+                    switch (row[x])
+                    {
+                        case 'e':
+                            entitySprite = entitySprites[UnityEngine.Random.Range(0, 5)];
+                            InstantiateEntity(gridPosition, entitySprite, EntityType.Character, EntityFaction.Enemy, gridNavigator);
+                            break;
+
+                        case 'p':
+                            entitySprite = entitySprites[UnityEngine.Random.Range(5, 10)];
+                            InstantiateEntity(gridPosition, entitySprite, EntityType.Character, EntityFaction.Player, gridNavigator);
+                            break;
+
+                        case '#':
+                            entitySprite = tileSprites[49];
+                            InstantiateEntity(gridPosition, entitySprite, EntityType.Obstacle, EntityFaction.Neutral, gridNavigator);
+                            break;
+                    }
+                }
+            }
+
+
             //TODO: Check why grid navigator needs to be inited after level view
             gridNavigator.Init(this);
 
@@ -62,6 +99,55 @@ namespace Tactics.Battle
             inputSystem.OnEmptyTileClicked += OnEmptyTileClicked;
 
             StartPlayerTurn();
+        }
+
+        private void InstantiateEntity(Vector2Int gridPosition,
+                                       Sprite sprite,
+                                       EntityType type,
+                                       EntityFaction faction,
+                                       GridNavigator gridNavigator)
+        {
+            //TODO: throw away this search logic
+            var entitiesContainer = GameObject.Find("Level").transform.transform.Find("Entities");
+            Entity newEntity = GameObject.Instantiate(entityPrefab, Vector3.zero, Quaternion.identity, entitiesContainer);
+            newEntity.name = type.ToString();
+            newEntity.Init(gridPosition, this, gridNavigator, sprite, type, faction, levelView);
+            if (type == EntityType.Character)
+            {
+                string pathToConfig = "Configs/" + "DefaultCharacterConfig";
+                var config = Resources.Load<CharacterConfig>(pathToConfig);
+                newEntity.AddCharacterParams(config);
+                newEntity.OnMovementFinished += OnEntityMoved;
+                newEntity.OnDestroyed += OnEntityDestroyed;
+                newEntity.OnSelected += OnEntitySelected;
+                newEntity.OnAttack += () => OnCharacterAttack();
+            }
+            LevelData.Entities.Add(newEntity);
+            LevelData.TilesEntities[gridPosition.x, gridPosition.y] = newEntity;
+        }
+
+        private void OnEntitySelected(Entity selectedEntity, bool isSelected)
+        {
+            foreach (var entity in LevelData.Entities)
+            {
+                if (entity != selectedEntity)
+                {
+                    entity.EntityView.Deselect();
+                }
+            }
+        }
+
+        private void OnEntityDestroyed(Entity entity)
+        {
+            LevelData.Entities.Remove(entity);
+            LevelData.TilesEntities[entity.GridPosition.x, entity.GridPosition.y] = null;
+        }
+
+        private void OnEntityMoved(Entity entity, Vector2Int oldPosition, Vector2Int newPosition)
+        {
+            LevelData.TilesEntities[oldPosition.x, oldPosition.y] = null;
+            LevelData.TilesEntities[newPosition.x, newPosition.y] = entity;
+            OnCharacterMoved();
         }
 
         public List<Entity> GetCharacters(EntityFaction? filterFaction = null)

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Tactics.View.Entities;
-using Tactics.Helpers;
 using Tactics.Helpers.Promises;
 using Tactics.View.Level;
 
@@ -28,7 +27,7 @@ namespace Tactics.Battle
         public Vector2Int GridPosition { get; private set; }
         public EntityView EntityView { get; private set; }
 
-        //TODO: Move to additional components
+        //TODO: Move to additional components ?
         public int MaxWalkDistance { get; private set; }
         public int AttackDamage { get; private set; }
         public int HealthPoints { get; private set; }
@@ -38,7 +37,7 @@ namespace Tactics.Battle
         public List<Entity> possibleAttackTargets = new List<Entity>();
 
         private int maxHealth;
-        private float stepDuration;
+        private float stepDuration = .2f;
         private LevelView levelService;
         private GridNavigator gridNavigator;
         private BattleManager battleManager;
@@ -52,17 +51,16 @@ namespace Tactics.Battle
             Type = type;
             Faction = faction;
             EntityView = GetComponent<EntityView>() ?? gameObject.AddComponent<EntityView>();
-            EntityView.Init(this, sprite, type, gridPosition, levelService);
+            EntityView.Init(this, sprite, type, gridPosition, levelService, battleManager);
         }
 
-        public void AddCharacterParams(CharacterConfig config, float stepDuration)
+        public void AddCharacterParams(CharacterConfig config)
         {
             this.AttackRange = config.attackRange;
             this.AttackDamage = config.attackDamage;
             this.maxHealth = config.maxHealth;
             this.HealthPoints = config.maxHealth;
             this.MaxWalkDistance = config.moveDistance;
-            this.stepDuration = stepDuration;
         }
 
         public IPromise MakeAITurn()

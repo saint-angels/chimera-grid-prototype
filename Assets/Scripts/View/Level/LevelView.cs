@@ -21,9 +21,6 @@ namespace Tactics.View.Level
         private Sprite[] tileSprites;
         private GameObject tilePrefab;
 
-        private Sprite[] entitySprites;
-        private Entity entityPrefab;
-
         private Transform levelContainer;
         private Transform tilesContainer;
         private Transform entitiesContainer;
@@ -34,8 +31,6 @@ namespace Tactics.View.Level
         private BattleManager battleManager;
         private GridNavigator gridNavigator;
 
-        private float stepDuration = .2f;
-
         private TileView[,] Tiles;
 
         public LevelView()
@@ -43,12 +38,8 @@ namespace Tactics.View.Level
             tileSprites = Resources.LoadAll<Sprite>("Sprites/Tileset");
             tilePrefab = Resources.Load<GameObject>("Prefabs/Tile");
 
-            entitySprites = Resources.LoadAll<Sprite>("Sprites/Entities");
-            entityPrefab = Resources.Load<Entity>("Prefabs/Entity");
-
             levelContainer = GameObject.Find("Level").transform;
             tilesContainer = levelContainer.transform.Find("Tiles");
-            entitiesContainer = levelContainer.transform.Find("Entities");
 
             audio = GameObject.Find("Audio").GetComponent<AudioComponent>();
         }
@@ -58,6 +49,15 @@ namespace Tactics.View.Level
             this.gridNavigator = gridNavigator;
             this.battleManager = battleManager;
             battleManager.OnPlayerTurnEnded += OnPlayerTurnEnded;
+            battleManager.OnCharacterAttack += () =>
+            {
+                HideAllBreadCrumbs();
+            };
+
+            battleManager.OnCharacterMoved += () =>
+            {
+                HideAllBreadCrumbs();
+            };
 
             int width = levelData.Width;
             int height = levelData.Height;
@@ -75,35 +75,6 @@ namespace Tactics.View.Level
                 {
                     var tile = int.Parse(row[x].ToString()) - 1;
                     InstantiateTile(x, y, tile);
-                }
-            }
-
-            // Entities
-            Sprite entitySprite;
-            for (int y = 0; y < height; y++)
-            {
-                var row = rows[4 + height + y];
-
-                for (int x = 0; x < width; x++)
-                {
-                    Vector2Int gridPosition = new Vector2Int(x, y);
-                    switch (row[x])
-                    {
-                        case 'e':
-                            entitySprite = entitySprites[UnityEngine.Random.Range(0, 5)];
-                            InstantiateEntity(gridPosition, entitySprite, EntityType.Character, EntityFaction.Enemy);
-                            break;
-
-                        case 'p':
-                            entitySprite = entitySprites[UnityEngine.Random.Range(5, 10)];
-                            InstantiateEntity(gridPosition, entitySprite, EntityType.Character, EntityFaction.Player);
-                            break;
-
-                        case '#':
-                            entitySprite = tileSprites[49];
-                            InstantiateEntity(gridPosition, entitySprite, EntityType.Obstacle, EntityFaction.Neutral);
-                            break;
-                    }
                 }
             }
 
@@ -139,24 +110,6 @@ namespace Tactics.View.Level
             Tiles[x, y] = tile.GetComponent<TileView>();
         }
 
-        private void InstantiateEntity(Vector2Int gridPosition, Sprite sprite, EntityType type, EntityFaction faction)
-        {
-            Entity newEntity = GameObject.Instantiate(entityPrefab, Vector3.zero, Quaternion.identity, entitiesContainer);
-            newEntity.name = type.ToString();
-            newEntity.Init(gridPosition, battleManager, gridNavigator, sprite, type, faction, this);
-            if (type == EntityType.Character)
-            {
-                string pathToConfig = "Configs/" + "DefaultCharacterConfig";
-                var config = Resources.Load<CharacterConfig>(pathToConfig);
-                newEntity.AddCharacterParams(config, stepDuration);
-                newEntity.OnMovementFinished += OnEntityMoved;
-                newEntity.OnDestroyed += OnEntityDestroyed;
-                newEntity.OnSelected += OnEntitySelected;
-                newEntity.OnAttack += OnEntityAttack;
-            }
-            LevelData.Entities.Add(newEntity);
-            LevelData.TilesEntities[gridPosition.x, gridPosition.y] = newEntity;
-        }
 
         private void OnPlayerTurnEnded()
         {
@@ -164,29 +117,13 @@ namespace Tactics.View.Level
             HideAllBreadCrumbs();
         }
 
-        private void OnEntityAttack()
-        {
-            HideAllBreadCrumbs();
-            HideAllAttackTargetSelections();
-        }
-
-        private void OnEntitySelected(Entity selectedEntity, bool isSelected)
-        {
-            foreach (var entity in GetEntities())
-            {
-                if (entity != selectedEntity)
-                {
-                    entity.EntityView.Deselect();
-                }
-            }
-        }
 
         public void SetBreadCrumbVisible(int x, int y, bool isVisible, float delay = 0)
         {
             Tiles[x, y].SetBreadCrumbVisible(isVisible, delay);
         }
 
-        private void HideAllAttackTargetSelections()
+        public void HideAllAttackTargetSelections()
         {
             foreach (var entity in GetEntities())
             {
@@ -264,19 +201,6 @@ namespace Tactics.View.Level
             }
 
             audio.PlayQuake();
-        }
-
-        private void OnEntityDestroyed(Entity entity)
-        {
-            LevelData.Entities.Remove(entity);
-            LevelData.TilesEntities[entity.GridPosition.x, entity.GridPosition.y] = null;
-        }
-
-        private void OnEntityMoved(Entity entity, Vector2Int oldPosition, Vector2Int newPosition)
-        {
-            HideAllBreadCrumbs();
-            LevelData.TilesEntities[oldPosition.x, oldPosition.y] = null;
-            LevelData.TilesEntities[newPosition.x, newPosition.y] = entity;
         }
     }
 }
