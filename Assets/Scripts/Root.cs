@@ -16,18 +16,21 @@ namespace Tactics
         [SerializeField] private BattleManager battleManager;
         [SerializeField] private InputSystem input;
         [SerializeField] private new AudioComponent audio;
+        [SerializeField] private GridNavigator gridNavigator = null;
 
         private static Root _instance;
 
         void Awake()
         {
             _instance = this;
+            DG.Tweening.DOTween.SetTweensCapacity(500, 100);
         }
 
         void Start()
         {
             hud.Init(battleManager);
-            battleManager.Init(hud, input);
+            battleManager.Init(hud, input, gridNavigator);
+            gridNavigator.Init(battleManager);
         }
 
     }

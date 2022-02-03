@@ -12,12 +12,14 @@ namespace Tactics.View.Entities
 {
     public class EntityView : MonoBehaviour
     {
-        public SpriteRenderer Renderer;
-        public GameObject SlashPrefab;
-        public GameObject Selection;
-        public GameObject AttackTargetSelection;
-        public GameObject HealthBarContainer;
-        public GameObject HealthBar;
+        [SerializeField] private SpriteRenderer Renderer;
+        [SerializeField] private GameObject SlashPrefab;
+        [SerializeField] private GameObject Selection;
+        [SerializeField] private GameObject AttackTargetSelection;
+        [SerializeField] private GameObject HealthBarContainer;
+        [SerializeField] private GameObject HealthBar;
+        [SerializeField] private GameObject attackAvailableIndicator;
+        [SerializeField] private GameObject moveAvailableIndicator;
 
         private Entity entityOwner;
         private LevelView levelService;
@@ -26,10 +28,8 @@ namespace Tactics.View.Entities
                          Sprite sprite,
                          EntityType type,
                          Vector2Int gridPosition,
-                         LevelView levelService,
                          BattleManager battleManager)
         {
-            this.levelService = levelService;
             this.entityOwner = entityOwner;
 
             entityOwner.OnDamaged += OnEntityDamaged;
@@ -41,10 +41,17 @@ namespace Tactics.View.Entities
             {
                 HideTargetVisuals();
             };
-
-            battleManager.OnEntitySelected += (entity, isSelected) =>
+            battleManager.OnUserCharacterActionsUpdate += (movableChars, attackingChars) =>
             {
-                bool ownerSelected = entity == entityOwner && isSelected;
+                bool canMove = movableChars.Contains(entityOwner);
+                bool canAttack = attackingChars.Contains(entityOwner);
+                attackAvailableIndicator.SetActive(canAttack);
+                moveAvailableIndicator.SetActive(canMove);
+            };
+
+            entityOwner.OnSelected += (entity) =>
+            {
+                bool ownerSelected = entity == entityOwner;
                 Selection.gameObject.SetActive(ownerSelected);
                 if (ownerSelected)
                 {
@@ -55,12 +62,28 @@ namespace Tactics.View.Entities
 
             Renderer.sortingOrder = GridHelper.GetSortingOrder(gridPosition.x, gridPosition.y);
             Renderer.sprite = sprite;
-            if (type == EntityType.Character)
+
+            //Turn actions indicators are turned off for everyone
+            //including user's characters
+            attackAvailableIndicator.SetActive(false);
+            moveAvailableIndicator.SetActive(false);
+
+            HealthBarContainer.SetActive(false);
+            HealthBar.SetActive(false);
+            switch (type)
             {
-                HealthBarContainer.SetActive(true);
-                HealthBar.SetActive(true);
-                HealthBar.transform.localScale = Vector3.one;
+                case EntityType.Character:
+                    HealthBarContainer.SetActive(true);
+                    HealthBar.SetActive(true);
+                    HealthBar.transform.localScale = Vector3.one;
+                    break;
+                case EntityType.Obstacle:
+                    break;
+                default:
+                    Debug.LogError($"EntityView doesn't support entity of type{type}");
+                    break;
             }
+
             transform.position = GridHelper.ToWorldCoordinates(gridPosition);
         }
 

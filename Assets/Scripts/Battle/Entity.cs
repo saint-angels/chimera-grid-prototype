@@ -18,7 +18,7 @@ namespace Tactics.Battle
         public event Action<Entity, Vector2Int, Vector2Int> OnMovementFinished = (entity, oldPosition, newPosition) => { };
         public event Action OnAttack = () => { };
         public event Action<float> OnDamaged = (currentHealthPercentage) => { };
-        public event Action<Entity, bool> OnSelected = (entity, isSelected) => { };
+        public event Action<Entity> OnSelected = (entity) => { };
         public event Action<bool> OnTargeted = (isTargeted) => { };
         public event Action<Entity> OnDestroyed = (entity) => { };
 
@@ -27,7 +27,7 @@ namespace Tactics.Battle
         public Vector2Int GridPosition { get; private set; }
         public EntityView EntityView { get; private set; }
 
-        //TODO: Move to additional components ?
+        //TODO: Move to additional components?
         public int MaxWalkDistance { get; private set; }
         public int AttackDamage { get; private set; }
         public int HealthPoints { get; private set; }
@@ -51,7 +51,7 @@ namespace Tactics.Battle
             Type = type;
             Faction = faction;
             EntityView = GetComponent<EntityView>() ?? gameObject.AddComponent<EntityView>();
-            EntityView.Init(this, sprite, type, gridPosition, levelService, battleManager);
+            EntityView.Init(this, sprite, type, gridPosition, battleManager);
         }
 
         public void AddCharacterParams(CharacterConfig config)
@@ -140,7 +140,7 @@ namespace Tactics.Battle
                     possibleAttackTargets.Add(entity);
                 }
             }
-            OnSelected(this, true);
+            OnSelected(this);
         }
 
         public bool CanAttack(Entity entity)

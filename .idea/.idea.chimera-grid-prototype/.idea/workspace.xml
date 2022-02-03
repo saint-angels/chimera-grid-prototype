@@ -3,6 +3,13 @@
   <component name="ChangeListManager">
     <list default="true" id="ef8bb184-c28c-4684-b024-31b9cf746d75" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.chimera-grid-prototype/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.chimera-grid-prototype/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Prefabs/Entity.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Prefabs/Entity.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Main.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Main.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Battle/Entity.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Battle/Entity.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/BattleHUD.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/BattleHUD.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Root.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Root.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/View/Entities/EntityView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/View/Entities/EntityView.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,6 +28,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="Discover.Launch.Via.Unity" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
@@ -60,7 +68,11 @@
       <updated>1643381343327</updated>
       <workItem from="1643381344733" duration="1672000" />
       <workItem from="1643479201942" duration="2224000" />
-      <workItem from="1643632323799" duration="1142000" />
+      <workItem from="1643632323799" duration="1802000" />
+      <workItem from="1643722489482" duration="1198000" />
+      <workItem from="1643738900395" duration="1562000" />
+      <workItem from="1643817231905" duration="611000" />
+      <workItem from="1643884372855" duration="1368000" />
     </task>
     <servers />
   </component>

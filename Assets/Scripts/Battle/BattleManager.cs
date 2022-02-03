@@ -8,6 +8,7 @@ using Tactics.Helpers;
 using Tactics.Helpers.Promises;
 using Tactics.View.Level;
 using Tactics.SharedData;
+using Tactics.Helpers.StatefulEvent;
 
 namespace Tactics.Battle
 {
@@ -25,20 +26,26 @@ namespace Tactics.Battle
         public Action OnCharacterAttack = () => { };
         public Action OnCharacterMoved = () => { };
         public Action<Entity, bool> OnEntitySelected = (entity, isSelected) => { };
+        public Action<List<Entity>, List<Entity>> OnUserCharacterActionsUpdate = (movable, attacking) => { };
 
+        [SerializeField] private Transform entityContainer = null;
+
+        //TODO: Take levelView out of battle manager?
         private LevelView levelView;
 
         private Entity entityPrefab;
         private Entity selectedCharacter;
 
         private TurnState turnState;
-        private List<Entity> movablePlayerCharacters = new List<Entity>();
-        private List<Entity> attackingPlayerCharacters = new List<Entity>();
 
         private LevelData LevelData;
+        private List<Entity> MovableUserChars = new List<Entity>();
+        private List<Entity> AttackingUserChars = new List<Entity>();
 
-        public void Init(BattleHUD hud, InputSystem inputSystem)
+        public void Init(BattleHUD hud, InputSystem inputSystem, GridNavigator gridNavigator)
         {
+            MovableUserChars = new List<Entity>();
+            AttackingUserChars = new List<Entity>();
             entityPrefab = Resources.Load<Entity>("Prefabs/Entity");
             var levelText = Resources.Load<TextAsset>($"Levels/Level2").text;
             string[] rows = levelText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -54,7 +61,6 @@ namespace Tactics.Battle
             };
 
             levelView = new LevelView();
-            GridNavigator gridNavigator = GetComponent<GridNavigator>() ?? gameObject.AddComponent<GridNavigator>();
             levelView.Init(this, gridNavigator, LevelData, rows);
 
             // Entities
@@ -88,10 +94,6 @@ namespace Tactics.Battle
                 }
             }
 
-
-            //TODO: Check why grid navigator needs to be inited after level view
-            gridNavigator.Init(this);
-
             hud.OnEndTurnClicked += OnEndTurnClicked;
 
             inputSystem.Init(this);
@@ -99,44 +101,43 @@ namespace Tactics.Battle
             inputSystem.OnEmptyTileClicked += OnEmptyTileClicked;
 
             StartPlayerTurn();
+
+            void InstantiateEntity(Vector2Int gridPosition,
+                                           Sprite sprite,
+                                           EntityType type,
+                                           EntityFaction faction,
+                                           GridNavigator gridNavigator)
+            {
+                Entity newEntity = GameObject.Instantiate(entityPrefab, Vector3.zero, Quaternion.identity, entityContainer);
+                newEntity.name = type.ToString();
+                newEntity.Init(gridPosition, this, gridNavigator, sprite, type, faction, levelView);
+                if (type == EntityType.Character)
+                {
+                    string pathToConfig = "Configs/" + "DefaultCharacterConfig";
+                    var config = Resources.Load<CharacterConfig>(pathToConfig);
+                    newEntity.AddCharacterParams(config);
+                    newEntity.OnMovementFinished += (entity, oldPosition, newPosition) =>
+                    {
+                        LevelData.TilesEntities[oldPosition.x, oldPosition.y] = null;
+                        LevelData.TilesEntities[newPosition.x, newPosition.y] = entity;
+                        OnCharacterMoved();
+                    };
+                    newEntity.OnDestroyed += (entity) =>
+                    {
+                        LevelData.Entities.Remove(entity);
+                        LevelData.TilesEntities[entity.GridPosition.x, entity.GridPosition.y] = null;
+                    };
+                    newEntity.OnSelected += (selectedEntity) =>
+                    {
+                        OnEntitySelected(selectedEntity, true);
+                    };
+                    newEntity.OnAttack += () => OnCharacterAttack();
+                }
+                LevelData.Entities.Add(newEntity);
+                LevelData.TilesEntities[gridPosition.x, gridPosition.y] = newEntity;
+            }
         }
 
-        private void InstantiateEntity(Vector2Int gridPosition,
-                                       Sprite sprite,
-                                       EntityType type,
-                                       EntityFaction faction,
-                                       GridNavigator gridNavigator)
-        {
-            //TODO: throw away this search logic
-            var entitiesContainer = GameObject.Find("Level").transform.transform.Find("Entities");
-            Entity newEntity = GameObject.Instantiate(entityPrefab, Vector3.zero, Quaternion.identity, entitiesContainer);
-            newEntity.name = type.ToString();
-            newEntity.Init(gridPosition, this, gridNavigator, sprite, type, faction, levelView);
-            if (type == EntityType.Character)
-            {
-                string pathToConfig = "Configs/" + "DefaultCharacterConfig";
-                var config = Resources.Load<CharacterConfig>(pathToConfig);
-                newEntity.AddCharacterParams(config);
-                newEntity.OnMovementFinished += (entity, oldPosition, newPosition) =>
-                {
-                    LevelData.TilesEntities[oldPosition.x, oldPosition.y] = null;
-                    LevelData.TilesEntities[newPosition.x, newPosition.y] = entity;
-                    OnCharacterMoved();
-                };
-                newEntity.OnDestroyed += (entity) =>
-                {
-                    LevelData.Entities.Remove(entity);
-                    LevelData.TilesEntities[entity.GridPosition.x, entity.GridPosition.y] = null;
-                };
-                newEntity.OnSelected += (selectedEntity, isSelected) =>
-                {
-                    OnEntitySelected(selectedEntity, isSelected);
-                };
-                newEntity.OnAttack += () => OnCharacterAttack();
-            }
-            LevelData.Entities.Add(newEntity);
-            LevelData.TilesEntities[gridPosition.x, gridPosition.y] = newEntity;
-        }
 
         public List<Entity> GetCharacters(EntityFaction? filterFaction = null)
         {
@@ -220,10 +221,11 @@ namespace Tactics.Battle
 
         private void StartPlayerTurn()
         {
-            movablePlayerCharacters.Clear();
-            attackingPlayerCharacters.Clear();
-            movablePlayerCharacters.AddRange(GetCharacters(EntityFaction.Player));
-            attackingPlayerCharacters.AddRange(movablePlayerCharacters);
+            MovableUserChars.Clear();
+            AttackingUserChars.Clear();
+            MovableUserChars.AddRange(GetCharacters(EntityFaction.Player));
+            AttackingUserChars.AddRange(MovableUserChars);
+            OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
 
             SetState(TurnState.UserIdle);
         }
@@ -265,12 +267,13 @@ namespace Tactics.Battle
                             SelectUserCharacter(clickedCharacter);
                             break;
                         case EntityFaction.Enemy:
-                            bool characterCanAttack = attackingPlayerCharacters.Contains(selectedCharacter);
+                            bool characterCanAttack = AttackingUserChars.Contains(selectedCharacter);
                             if (characterCanAttack && selectedCharacter.CanAttack(clickedCharacter))
                             {
-                                attackingPlayerCharacters.Remove(selectedCharacter);
+                                AttackingUserChars.Remove(selectedCharacter);
+                                OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
                                 selectedCharacter.Attack(clickedCharacter);
-                                bool canMove = movablePlayerCharacters.Contains(selectedCharacter);
+                                bool canMove = MovableUserChars.Contains(selectedCharacter);
                                 if (canMove)
                                 {
                                     SelectUserCharacter(selectedCharacter);
@@ -298,8 +301,9 @@ namespace Tactics.Battle
                         movingCharacter.Move(gridPosition)
                             .Done(() =>
                             {
-                                movablePlayerCharacters.Remove(movingCharacter);
-                                bool canAttack = attackingPlayerCharacters.Contains(movingCharacter);
+                                MovableUserChars.Remove(movingCharacter);
+                                OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
+                                bool canAttack = AttackingUserChars.Contains(movingCharacter);
                                 if (canAttack)
                                 {
                                     SelectUserCharacter(movingCharacter);
@@ -329,9 +333,8 @@ namespace Tactics.Battle
         {
             this.selectedCharacter = selectedCharacter;
 
-            //TODO: Let the entity itself contain the info if it can attack/move or not
-            bool movementAllowed = movablePlayerCharacters.Contains(selectedCharacter);
-            bool attackAllowed = attackingPlayerCharacters.Contains(selectedCharacter);
+            bool movementAllowed = MovableUserChars.Contains(selectedCharacter);
+            bool attackAllowed = AttackingUserChars.Contains(selectedCharacter);
             selectedCharacter.Select(movementAllowed, attackAllowed);
             SetState(TurnState.UserCharSelected);
         }

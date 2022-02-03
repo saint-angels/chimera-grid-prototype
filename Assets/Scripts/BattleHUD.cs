@@ -37,7 +37,7 @@ namespace Tactics
             }
             else
             {
-                ShowAndHideBanner("AI wins!");
+                ShowAndHideBanner("Enemy wins!");
             }
         }
 
