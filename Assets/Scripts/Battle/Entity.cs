@@ -27,7 +27,6 @@ namespace Tactics.Battle
         public Vector2Int GridPosition { get; private set; }
         public EntityView EntityView { get; private set; }
 
-        //TODO: Move to additional components?
         public int MaxWalkDistance { get; private set; }
         public int AttackDamage { get; private set; }
         public int HealthPoints { get; private set; }

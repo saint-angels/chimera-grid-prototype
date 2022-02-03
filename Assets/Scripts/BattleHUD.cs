@@ -26,19 +26,23 @@ namespace Tactics
 
         public void Init(BattleManager battleManager)
         {
-            battleManager.OnBattleOver += ShowBattleResults;
-        }
+            battleManager.OnBattleOver += (userWon) =>
+            {
+                if (userWon)
+                {
+                    ShowAndHideBanner("Player wins!");
+                }
+                else
+                {
+                    ShowAndHideBanner("Enemy wins!");
+                }
+            };
 
-        private void ShowBattleResults(bool playerWon)
-        {
-            if (playerWon)
+            battleManager.OnUserCharacterActionsUpdate += (movableChars, attackingChars) =>
             {
-                ShowAndHideBanner("Player wins!");
-            }
-            else
-            {
-                ShowAndHideBanner("Enemy wins!");
-            }
+                bool canFinishTurn = movableChars.Count == 0;
+                buttonEndTurn.interactable = canFinishTurn;
+            };
         }
 
         private void ShowAndHideBanner(string text, float showDelay = 0, float hideDelay = 2)

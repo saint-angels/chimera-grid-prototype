@@ -30,7 +30,6 @@ namespace Tactics.Battle
 
         [SerializeField] private Transform entityContainer = null;
 
-        //TODO: Take levelView out of battle manager?
         private LevelView levelView;
 
         private Entity entityPrefab;
