@@ -37,7 +37,7 @@ namespace Tactics.View.Entities
             entityOwner.OnTargeted += OnEntityTargeted;
             entityOwner.OnStep += OnEntityStep;
 
-            battleManager.OnCharacterAttack += () =>
+            battleManager.OnUnitAttack += (unit, target, dmg) =>
             {
                 HideTargetVisuals();
             };

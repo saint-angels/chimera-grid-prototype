@@ -54,12 +54,12 @@ namespace Tactics.View.Level
                 HideAllBreadCrumbs();
             };
 
-            battleManager.OnCharacterAttack += () =>
+            battleManager.OnUnitAttack += (unit, target, dmg) =>
             {
                 HideAllBreadCrumbs();
             };
 
-            battleManager.OnCharacterMoved += () =>
+            battleManager.OnCharacterMoved += (unit, oldPos, newPos) =>
             {
                 HideAllBreadCrumbs();
             };

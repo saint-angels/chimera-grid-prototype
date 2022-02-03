@@ -16,7 +16,7 @@ namespace Tactics.Battle
     {
         public event Action<Vector2Int, int, float> OnStep = (newPosition, stepIndex, stepDuration) => { };
         public event Action<Entity, Vector2Int, Vector2Int> OnMovementFinished = (entity, oldPosition, newPosition) => { };
-        public event Action OnAttack = () => { };
+        public event Action<Entity, Entity, int> OnAttack = (owner, target, damage) => { };
         public event Action<float> OnDamaged = (currentHealthPercentage) => { };
         public event Action<Entity> OnSelected = (entity) => { };
         public event Action<bool> OnTargeted = (isTargeted) => { };
@@ -161,7 +161,7 @@ namespace Tactics.Battle
 
         public void Attack(Entity target)
         {
-            OnAttack();
+            OnAttack(this, target, AttackDamage);
             target.Damage(AttackDamage);
         }
 

@@ -16,6 +16,7 @@ namespace Tactics
         [SerializeField] private GameObject Banner;
         [SerializeField] private Text BannerText;
         [SerializeField] private Text BannerTextShadow;
+        [SerializeField] private Text battleLogLabel;
 
         private void Awake()
         {
@@ -42,6 +43,16 @@ namespace Tactics
             {
                 bool canFinishTurn = movableChars.Count == 0;
                 buttonEndTurn.interactable = canFinishTurn;
+            };
+
+            battleManager.OnUnitAttack += (unit, target, damage) =>
+            {
+                battleLogLabel.text += $"\n{unit.gameObject.name} dealt {damage} dmg to {target.gameObject.name}!";
+            };
+
+            battleManager.OnCharacterMoved += (unit, oldPos, newPos) =>
+            {
+                battleLogLabel.text += $"\n{unit.gameObject.name} {oldPos.x}:{oldPos.y}->{newPos.x}:{newPos.y}";
             };
         }
 

@@ -23,10 +23,10 @@ namespace Tactics.Battle
 
         public Action<bool> OnBattleOver = (userWon) => { };
         public Action OnPlayerTurnEnded = () => { };
-        public Action OnCharacterAttack = () => { };
-        public Action OnCharacterMoved = () => { };
+        public Action<Entity, Vector2Int, Vector2Int> OnCharacterMoved = (unit, oldPos, newPos) => { };
         public Action<Entity, bool> OnEntitySelected = (entity, isSelected) => { };
         public Action<List<Entity>, List<Entity>> OnUserCharacterActionsUpdate = (movable, attacking) => { };
+        public Action<Entity, Entity, int> OnUnitAttack = (unit, actionType, damage) => { };
 
         [SerializeField] private Transform entityContainer = null;
 
@@ -119,7 +119,7 @@ namespace Tactics.Battle
                     {
                         LevelData.TilesEntities[oldPosition.x, oldPosition.y] = null;
                         LevelData.TilesEntities[newPosition.x, newPosition.y] = entity;
-                        OnCharacterMoved();
+                        OnCharacterMoved(entity, oldPosition, newPosition);
                     };
                     newEntity.OnDestroyed += (entity) =>
                     {
@@ -130,7 +130,7 @@ namespace Tactics.Battle
                     {
                         OnEntitySelected(selectedEntity, true);
                     };
-                    newEntity.OnAttack += () => OnCharacterAttack();
+                    newEntity.OnAttack += (entity, target, damage) => OnUnitAttack(entity, target, damage);
                 }
                 LevelData.Entities.Add(newEntity);
                 LevelData.TilesEntities[gridPosition.x, gridPosition.y] = newEntity;
