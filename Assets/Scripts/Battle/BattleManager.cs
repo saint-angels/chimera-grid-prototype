@@ -233,22 +233,28 @@ namespace Tactics.Battle
 
         private IPromise PlayEnemyTurn()
         {
-            List<IPromise> enemyTurnPromises = new List<IPromise>();
+            IPromise enemyTurnPromises = Deferred.GetFromPool().Resolve();
             var enemies = GetCharacters(EntityFaction.Enemy);
+
             foreach (var enemy in enemies)
             {
-                enemyTurnPromises.Add(enemy.MakeAITurn());
+                enemyTurnPromises = enemyTurnPromises.Then(() => enemy.MakeAITurn());
             }
-            CheckForGameOver();
-
-            return Deferred.All(enemyTurnPromises);
+            return enemyTurnPromises;
         }
 
         public void EndTurn()
         {
             OnPlayerTurnEnded();
             SetState(TurnState.ActionInProgress);
-            PlayEnemyTurn().Done(() => StartPlayerTurn());
+            PlayEnemyTurn().Done(() =>
+            {
+                bool isGameOver = CheckIsGameOver();
+                if (isGameOver == false)
+                {
+                    StartPlayerTurn();
+                }
+            });
         }
 
         public void ClickCharacter(Entity clickedCharacter)
@@ -279,7 +285,7 @@ namespace Tactics.Battle
                                 {
                                     SelectUserCharacter(selectedCharacter);
                                 }
-                                CheckForGameOver();
+                                CheckIsGameOver();
                             }
                             break;
                     }
@@ -315,7 +321,7 @@ namespace Tactics.Battle
             }
         }
 
-        private void CheckForGameOver()
+        private bool CheckIsGameOver()
         {
             var enemyCharacters = GetCharacters(EntityFaction.Enemy);
             var playerCharacters = GetCharacters(EntityFaction.Player);
@@ -323,11 +329,15 @@ namespace Tactics.Battle
             if (enemyCharacters.Count == 0)
             {
                 OnBattleOver(true);
+                return true;
             }
             else if (playerCharacters.Count == 0)
             {
                 OnBattleOver(false);
+                return true;
             }
+
+            return false;
         }
 
         private void SelectUserCharacter(Entity selectedCharacter)
