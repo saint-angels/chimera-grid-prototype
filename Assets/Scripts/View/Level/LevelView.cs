@@ -26,9 +26,6 @@ namespace Tactics.View.Level
         private Transform entitiesContainer;
 
         private float quakeAnimationCooldown;
-        private AudioComponent audio;
-
-        private GridNavigator gridNavigator;
 
         private TileView[,] Tiles;
 
@@ -39,13 +36,10 @@ namespace Tactics.View.Level
 
             levelContainer = GameObject.Find("Level").transform;
             tilesContainer = levelContainer.transform.Find("Tiles");
-
-            audio = GameObject.Find("Audio").GetComponent<AudioComponent>();
         }
 
-        public void Init(BattleManager battleManager, GridNavigator gridNavigator, LevelData levelData, string[] rows)
+        public void Init(BattleManager battleManager, LevelData levelData, string[] rows)
         {
-            this.gridNavigator = gridNavigator;
             battleManager.OnPlayerTurnEnded += () =>
             {
                 HideAllBreadCrumbs();
@@ -193,7 +187,7 @@ namespace Tactics.View.Level
                 }
             }
 
-            audio.PlayQuake();
+            Root.Audio.PlayQuake();
         }
     }
 }

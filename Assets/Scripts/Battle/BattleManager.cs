@@ -61,7 +61,7 @@ namespace Tactics.Battle
             };
 
             levelView = new LevelView();
-            levelView.Init(this, gridNavigator, LevelData, rows);
+            levelView.Init(this, LevelData, rows);
 
             // Entities
             var entitySprites = Resources.LoadAll<Sprite>("Sprites/Entities");
