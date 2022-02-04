@@ -49,6 +49,16 @@ namespace Tactics.View.Entities
                 moveAvailableIndicator.SetActive(canMove);
             };
 
+            battleManager.OnUnitMoveStarted += () =>
+            {
+                HideTargetVisuals();
+            };
+
+            battleManager.OnPlayerTurnEnded += () =>
+            {
+                HideTargetVisuals();
+            };
+
             entityOwner.OnSelected += (entity) =>
             {
                 bool ownerSelected = entity == entityOwner;

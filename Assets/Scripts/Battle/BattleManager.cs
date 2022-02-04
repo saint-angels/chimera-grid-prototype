@@ -27,6 +27,7 @@ namespace Tactics.Battle
         public Action<Entity, bool> OnEntitySelected = (entity, isSelected) => { };
         public Action<List<Entity>, List<Entity>> OnUserCharacterActionsUpdate = (movable, attacking) => { };
         public Action<Entity, Entity, int> OnUnitAttack = (unit, actionType, damage) => { };
+        public Action OnUnitMoveStarted = () => { };
 
         [SerializeField] private Transform entityContainer = null;
 
@@ -109,6 +110,7 @@ namespace Tactics.Battle
                     string pathToConfig = "Configs/" + "DefaultCharacterConfig";
                     var config = Resources.Load<CharacterConfig>(pathToConfig);
                     newEntity.AddCharacterParams(config);
+                    newEntity.OnMoveStarted += () => OnUnitMoveStarted();
                     newEntity.OnMoved += (entity, oldPosition, newPosition) =>
                     {
                         LevelData.TilesEntities[oldPosition.x, oldPosition.y] = null;

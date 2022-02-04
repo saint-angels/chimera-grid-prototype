@@ -21,6 +21,7 @@ namespace Tactics.Battle
         public event Action<Entity> OnSelected = (entity) => { };
         public event Action<bool> OnTargeted = (isTargeted) => { };
         public event Action<Entity> OnDestroyed = (entity) => { };
+        public event Action OnMoveStarted = () => { };
 
         public EntityType Type { get; private set; }
         public EntityFaction Faction { get; private set; }
@@ -96,6 +97,7 @@ namespace Tactics.Battle
 
         public IPromise Move(Vector2Int target)
         {
+            OnMoveStarted();
             List<Vector2Int> path = gridNavigator.GetPath(this, target, MaxWalkDistance);
             Deferred moveDeferred = Deferred.GetFromPool();
             if (path != null)

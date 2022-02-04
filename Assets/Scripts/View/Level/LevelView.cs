@@ -28,7 +28,6 @@ namespace Tactics.View.Level
         private float quakeAnimationCooldown;
         private AudioComponent audio;
 
-        private BattleManager battleManager;
         private GridNavigator gridNavigator;
 
         private TileView[,] Tiles;
@@ -47,13 +46,8 @@ namespace Tactics.View.Level
         public void Init(BattleManager battleManager, GridNavigator gridNavigator, LevelData levelData, string[] rows)
         {
             this.gridNavigator = gridNavigator;
-            this.battleManager = battleManager;
             battleManager.OnPlayerTurnEnded += () =>
             {
-                foreach (var entity in battleManager.GetAllEntities())
-                {
-                    entity.EntityView.HideTargetVisuals();
-                }
                 HideAllBreadCrumbs();
             };
 
