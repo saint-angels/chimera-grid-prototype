@@ -215,11 +215,6 @@ namespace Tactics.Battle
             return outOfGridBounds == false;
         }
 
-        private void SetState(TurnState newTurnState)
-        {
-            turnState = newTurnState;
-        }
-
         private void StartPlayerTurn()
         {
             MovableUserChars.Clear();
@@ -228,7 +223,7 @@ namespace Tactics.Battle
             AttackingUserChars.AddRange(MovableUserChars);
             OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
 
-            SetState(TurnState.UserIdle);
+            turnState = TurnState.UserIdle;
         }
 
         private IPromise PlayEnemyTurn()
@@ -246,7 +241,7 @@ namespace Tactics.Battle
         public void EndTurn()
         {
             OnPlayerTurnEnded();
-            SetState(TurnState.ActionInProgress);
+            turnState = TurnState.ActionInProgress;
             PlayEnemyTurn().Done(() =>
             {
                 bool isGameOver = CheckIsGameOver();
@@ -302,7 +297,7 @@ namespace Tactics.Battle
                 case TurnState.UserCharSelected:
                     if (selectedCharacter.CanMove(gridPosition))
                     {
-                        SetState(TurnState.ActionInProgress);
+                        turnState = TurnState.ActionInProgress;
                         var movingCharacter = selectedCharacter;
 
                         movingCharacter.Move(gridPosition)
@@ -347,7 +342,7 @@ namespace Tactics.Battle
             bool movementAllowed = MovableUserChars.Contains(selectedCharacter);
             bool attackAllowed = AttackingUserChars.Contains(selectedCharacter);
             selectedCharacter.Select(movementAllowed, attackAllowed);
-            SetState(TurnState.UserCharSelected);
+            turnState = TurnState.UserCharSelected;
         }
     }
 }

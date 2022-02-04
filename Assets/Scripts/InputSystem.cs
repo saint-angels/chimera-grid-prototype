@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Tactics.Battle;
 using Tactics.Helpers;
-using Tactics.View.Level;
 using UnityEngine;
 
 namespace Tactics
