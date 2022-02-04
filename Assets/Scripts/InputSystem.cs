@@ -11,8 +11,6 @@ namespace Tactics
 {
     public class InputSystem : MonoBehaviour
     {
-        public event Action<Entity> OnCharacterClicked = (character) => { };
-        public event Action<Vector2Int> OnEmptyTileClicked = (coordinates) => { };
         public event Action OnOutOfBoundsClick = () => { };
 
         private BattleManager battleManager;
@@ -37,7 +35,7 @@ namespace Tactics
                     {
                         if (clickedEntity.Type == EntityType.Character)
                         {
-                            OnCharacterClicked(clickedEntity);
+                            battleManager.ClickCharacter(clickedEntity);
                         }
                         else
                         {
@@ -46,7 +44,7 @@ namespace Tactics
                     }
                     else
                     {
-                        OnEmptyTileClicked(clickedCoordinates);
+                        battleManager.HandleEmptyTileClick(clickedCoordinates);
                     }
                 }
                 else

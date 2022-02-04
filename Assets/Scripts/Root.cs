@@ -31,7 +31,7 @@ namespace Tactics
             hud.Init(battleManager);
             battleManager.Init(input, gridNavigator);
             gridNavigator.Init(battleManager);
+            input.Init(battleManager);
         }
-
     }
 }

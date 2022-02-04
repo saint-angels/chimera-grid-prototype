@@ -93,10 +93,6 @@ namespace Tactics.Battle
                 }
             }
 
-            inputSystem.Init(this);
-            inputSystem.OnCharacterClicked += OnCharacterClicked;
-            inputSystem.OnEmptyTileClicked += OnEmptyTileClicked;
-
             StartPlayerTurn();
 
             void InstantiateEntity(Vector2Int gridPosition,
@@ -253,7 +249,7 @@ namespace Tactics.Battle
             PlayEnemyTurn().Done(() => StartPlayerTurn());
         }
 
-        private void OnCharacterClicked(Entity clickedCharacter)
+        public void ClickCharacter(Entity clickedCharacter)
         {
             switch (turnState)
             {
@@ -289,7 +285,7 @@ namespace Tactics.Battle
             }
         }
 
-        private void OnEmptyTileClicked(Vector2Int gridPosition)
+        public void HandleEmptyTileClick(Vector2Int gridPosition)
         {
             switch (turnState)
             {
