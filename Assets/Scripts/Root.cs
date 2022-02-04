@@ -29,7 +29,7 @@ namespace Tactics
         void Start()
         {
             hud.Init(battleManager);
-            battleManager.Init(hud, input, gridNavigator);
+            battleManager.Init(input, gridNavigator);
             gridNavigator.Init(battleManager);
         }
 

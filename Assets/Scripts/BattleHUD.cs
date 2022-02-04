@@ -9,8 +9,6 @@ namespace Tactics
 {
     public class BattleHUD : MonoBehaviour
     {
-        public event Action OnEndTurnClicked = () => { };
-
         [SerializeField] private Button buttonEndTurn;
         [SerializeField] private RawImage Overlay;
         [SerializeField] private GameObject Banner;
@@ -22,7 +20,6 @@ namespace Tactics
         {
             Overlay.color = new Color(0, 0, 0, 0);
             Banner.gameObject.SetActive(false);
-            buttonEndTurn.onClick.AddListener(() => OnEndTurnClicked());
         }
 
         public void Init(BattleManager battleManager)
@@ -54,18 +51,15 @@ namespace Tactics
             {
                 battleLogLabel.text += $"\n{unit.gameObject.name} {oldPos.x}:{oldPos.y}->{newPos.x}:{newPos.y}";
             };
+
+
+            buttonEndTurn.onClick.AddListener(() => battleManager.EndTurn());
         }
 
         private void ShowAndHideBanner(string text, float showDelay = 0, float hideDelay = 2)
         {
-            ShowBanner(text, showDelay);
-            HideBanner(showDelay + hideDelay);
-        }
-
-        public void ShowBanner(string text, float delay = 0)
-        {
             Overlay.DOColor(new Color(0, 0, 0, 0.5f), 0.25f)
-                .SetDelay(delay)
+                .SetDelay(showDelay)
                 .OnComplete(() =>
                 {
                     Banner.gameObject.transform.DOPunchPosition(new Vector3(2f, 2f, 2f), 1f);
@@ -73,12 +67,9 @@ namespace Tactics
                     BannerTextShadow.text = text;
                     Banner.gameObject.SetActive(true);
                 });
-        }
 
-        public void HideBanner(float delay = 0)
-        {
             Overlay.DOColor(new Color(0, 0, 0, 0), 0.25f)
-                .SetDelay(delay)
+                .SetDelay(showDelay + hideDelay)
                 .OnStart(() =>
                 {
                     Banner.gameObject.SetActive(false);

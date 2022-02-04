@@ -35,7 +35,7 @@ namespace Tactics
                 characterNodeBlockers.Add(character, nodeBlocker);
                 nodeBlocker.BlockAtCurrentPosition();
 
-                character.OnMovementFinished += (entity, from, to) =>
+                character.OnMoved += (entity, from, to) =>
                     {
                         characterNodeBlockers[entity].BlockAtCurrentPosition();
                     };

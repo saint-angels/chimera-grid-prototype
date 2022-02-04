@@ -15,7 +15,7 @@ namespace Tactics.Battle
     public class Entity : MonoBehaviour
     {
         public event Action<Vector2Int, int, float> OnStep = (newPosition, stepIndex, stepDuration) => { };
-        public event Action<Entity, Vector2Int, Vector2Int> OnMovementFinished = (entity, oldPosition, newPosition) => { };
+        public event Action<Entity, Vector2Int, Vector2Int> OnMoved = (entity, oldPosition, newPosition) => { };
         public event Action<Entity, Entity, int> OnAttack = (owner, target, damage) => { };
         public event Action<float> OnDamaged = (currentHealthPercentage) => { };
         public event Action<Entity> OnSelected = (entity) => { };
@@ -72,10 +72,18 @@ namespace Tactics.Battle
                 if (closestPlayerCharacter != null)
                 {
                     List<Vector2Int> path = gridNavigator.GetPath(this, closestPlayerCharacter.GridPosition, MaxWalkDistance, closestPlayerCharacter);
-                    Vector2Int moveTarget = path.Last() == closestPlayerCharacter.GridPosition ? path[path.Count - 2] : path[path.Count - 1];
-                    IPromise movePromise = Move(moveTarget);
-                    movePromise.Done(() => TryAttackFractionInRange(opposingFaction));
-                    return movePromise;
+                    bool noPathFound = path == null;
+                    if (noPathFound)
+                    {
+                        return Deferred.GetFromPool().Resolve();
+                    }
+                    else
+                    {
+                        Vector2Int moveTarget = path.Last() == closestPlayerCharacter.GridPosition ? path[path.Count - 2] : path[path.Count - 1];
+                        IPromise movePromise = Move(moveTarget);
+                        movePromise.Done(() => TryAttackFractionInRange(opposingFaction));
+                        return movePromise;
+                    }
                 }
             }
             return Deferred.GetFromPool().Resolve();
@@ -104,7 +112,7 @@ namespace Tactics.Battle
                     .Done(() =>
                     {
                         GridPosition = path[path.Count - 1];
-                        OnMovementFinished(this, oldPosition, GridPosition);
+                        OnMoved(this, oldPosition, GridPosition);
                         moveDeferred.Resolve();
                     });
                 return moveDeferred;

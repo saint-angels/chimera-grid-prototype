@@ -50,7 +50,10 @@ namespace Tactics.View.Level
             this.battleManager = battleManager;
             battleManager.OnPlayerTurnEnded += () =>
             {
-                HideAllAttackTargetSelections();
+                foreach (var entity in battleManager.GetAllEntities())
+                {
+                    entity.EntityView.HideTargetVisuals();
+                }
                 HideAllBreadCrumbs();
             };
 
@@ -98,11 +101,6 @@ namespace Tactics.View.Level
             CenterCamera(height);
         }
 
-        public List<Entity> GetEntities()
-        {
-            return LevelData.Entities;
-        }
-
         private void CenterCamera(int levelHeight)
         {
             var numberOfRowsBeforeAdjustmentIsNeeded = 9;
@@ -130,14 +128,6 @@ namespace Tactics.View.Level
         public void SetBreadCrumbVisible(int x, int y, bool isVisible, float delay = 0)
         {
             Tiles[x, y].SetBreadCrumbVisible(isVisible, delay);
-        }
-
-        public void HideAllAttackTargetSelections()
-        {
-            foreach (var entity in GetEntities())
-            {
-                entity.EntityView.HideTargetVisuals();
-            }
         }
 
         public void HideAllBreadCrumbs()

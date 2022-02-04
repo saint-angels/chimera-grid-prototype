@@ -123,11 +123,11 @@ namespace Tactics.View.Entities
             HealthBar.transform.DOScaleX(clampedHealthPercentage, 0.25f);
         }
 
-        private void OnEntityTargeted(bool state)
+        private void OnEntityTargeted(bool isTargeted)
         {
-            AttackTargetSelection.gameObject.SetActive(state);
+            AttackTargetSelection.gameObject.SetActive(isTargeted);
 
-            if (state)
+            if (isTargeted)
             {
                 AttackTargetSelection.gameObject.transform.localScale = Vector3.one;
                 AttackTargetSelection.gameObject.transform.DOScale(new Vector3(1.2f, 1.2f, 1f), 0.5f).SetEase(Ease.OutQuint).SetLoops(int.MaxValue, LoopType.Yoyo);

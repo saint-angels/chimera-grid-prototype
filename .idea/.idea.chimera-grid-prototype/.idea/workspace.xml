@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ef8bb184-c28c-4684-b024-31b9cf746d75" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.chimera-grid-prototype/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.chimera-grid-prototype/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/BattleHUD.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/BattleHUD.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,7 +65,8 @@
       <workItem from="1643722489482" duration="1198000" />
       <workItem from="1643738900395" duration="1562000" />
       <workItem from="1643817231905" duration="611000" />
-      <workItem from="1643884372855" duration="1368000" />
+      <workItem from="1643884372855" duration="1369000" />
+      <workItem from="1643986119464" duration="1078000" />
     </task>
     <servers />
   </component>

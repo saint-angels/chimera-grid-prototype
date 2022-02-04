@@ -41,12 +41,12 @@ namespace Tactics.Battle
         private List<Entity> MovableUserChars = new List<Entity>();
         private List<Entity> AttackingUserChars = new List<Entity>();
 
-        public void Init(BattleHUD hud, InputSystem inputSystem, GridNavigator gridNavigator)
+        public void Init(InputSystem inputSystem, GridNavigator gridNavigator)
         {
             MovableUserChars = new List<Entity>();
             AttackingUserChars = new List<Entity>();
             entityPrefab = Resources.Load<Entity>("Prefabs/Entity");
-            var levelText = Resources.Load<TextAsset>($"Levels/Level2").text;
+            var levelText = Resources.Load<TextAsset>($"Levels/Level1").text;
             string[] rows = levelText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
             int width = int.Parse(rows[0]);
             int height = int.Parse(rows[1]);
@@ -93,8 +93,6 @@ namespace Tactics.Battle
                 }
             }
 
-            hud.OnEndTurnClicked += OnEndTurnClicked;
-
             inputSystem.Init(this);
             inputSystem.OnCharacterClicked += OnCharacterClicked;
             inputSystem.OnEmptyTileClicked += OnEmptyTileClicked;
@@ -115,7 +113,7 @@ namespace Tactics.Battle
                     string pathToConfig = "Configs/" + "DefaultCharacterConfig";
                     var config = Resources.Load<CharacterConfig>(pathToConfig);
                     newEntity.AddCharacterParams(config);
-                    newEntity.OnMovementFinished += (entity, oldPosition, newPosition) =>
+                    newEntity.OnMoved += (entity, oldPosition, newPosition) =>
                     {
                         LevelData.TilesEntities[oldPosition.x, oldPosition.y] = null;
                         LevelData.TilesEntities[newPosition.x, newPosition.y] = entity;
@@ -152,6 +150,12 @@ namespace Tactics.Battle
                         return factionCheck && typeCheck;
                     })
                 .ToList();
+        }
+
+
+        public List<Entity> GetAllEntities()
+        {
+            return LevelData.Entities;
         }
 
         //There could be only 1 entity at each tile at a time.
@@ -242,7 +246,7 @@ namespace Tactics.Battle
             return Deferred.All(enemyTurnPromises);
         }
 
-        private void OnEndTurnClicked()
+        public void EndTurn()
         {
             OnPlayerTurnEnded();
             SetState(TurnState.ActionInProgress);
