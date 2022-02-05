@@ -34,7 +34,7 @@ namespace Tactics
                     {
                         if (clickedEntity.Type == EntityType.Character)
                         {
-                            battleManager.ClickCharacter(clickedEntity);
+                            battleManager.HandleCharacterClick(clickedEntity);
                         }
                         else
                         {

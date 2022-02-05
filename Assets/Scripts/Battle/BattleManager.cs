@@ -4,11 +4,9 @@ using System.Linq;
 using Tactics;
 using SharedData;
 using UnityEngine;
-using Tactics.Helpers;
 using Tactics.Helpers.Promises;
 using Tactics.View.Level;
 using Tactics.SharedData;
-using Tactics.Helpers.StatefulEvent;
 
 namespace Tactics.Battle
 {
@@ -209,34 +207,11 @@ namespace Tactics.Battle
             return outOfGridBounds == false;
         }
 
-        private void StartPlayerTurn()
-        {
-            MovableUserChars.Clear();
-            AttackingUserChars.Clear();
-            MovableUserChars.AddRange(GetCharacters(EntityFaction.Player));
-            AttackingUserChars.AddRange(MovableUserChars);
-            OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
-
-            turnState = TurnState.UserIdle;
-        }
-
-        private IPromise PlayEnemyTurn()
-        {
-            IPromise enemyTurnPromises = Deferred.GetFromPool().Resolve();
-            var enemies = GetCharacters(EntityFaction.Enemy);
-
-            foreach (var enemy in enemies)
-            {
-                enemyTurnPromises = enemyTurnPromises.Then(() => enemy.MakeAITurn());
-            }
-            return enemyTurnPromises;
-        }
-
         public void EndTurn()
         {
             OnPlayerTurnEnded();
             turnState = TurnState.ActionInProgress;
-            PlayEnemyTurn().Done(() =>
+            PlayEnemyAITurn().Done(() =>
             {
                 bool isGameOver = CheckIsGameOver();
                 if (isGameOver == false)
@@ -244,9 +219,21 @@ namespace Tactics.Battle
                     StartPlayerTurn();
                 }
             });
+
+            IPromise PlayEnemyAITurn()
+            {
+                IPromise enemyTurnPromises = Deferred.GetFromPool().Resolve();
+                var enemies = GetCharacters(EntityFaction.Enemy);
+
+                foreach (var enemy in enemies)
+                {
+                    enemyTurnPromises = enemyTurnPromises.Then(() => enemy.MakeAITurn());
+                }
+                return enemyTurnPromises;
+            }
         }
 
-        public void ClickCharacter(Entity clickedCharacter)
+        public void HandleCharacterClick(Entity clickedCharacter)
         {
             switch (turnState)
             {
@@ -360,6 +347,17 @@ namespace Tactics.Battle
             }
 
             return false;
+        }
+
+        private void StartPlayerTurn()
+        {
+            MovableUserChars.Clear();
+            AttackingUserChars.Clear();
+            MovableUserChars.AddRange(GetCharacters(EntityFaction.Player));
+            AttackingUserChars.AddRange(MovableUserChars);
+            OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
+
+            turnState = TurnState.UserIdle;
         }
 
         private void SelectUserCharacter(Entity selectedCharacter)
