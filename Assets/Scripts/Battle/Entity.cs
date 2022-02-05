@@ -33,10 +33,12 @@ namespace Tactics.Battle
         public int HealthPoints { get; private set; }
         public int AttackRange { get; private set; }
 
+        //TODO: Make private?
         public List<Vector2Int> possibleMoveTargets = new List<Vector2Int>();
-        public List<Entity> possibleAttackTargets = new List<Entity>();
+        private List<Entity> possibleAttackTargets = new List<Entity>();
 
         private int maxHealth;
+        //TODO: Entity shouldn't know about Step duration
         private float stepDuration = .2f;
         private LevelView levelService;
         private GridNavigator gridNavigator;

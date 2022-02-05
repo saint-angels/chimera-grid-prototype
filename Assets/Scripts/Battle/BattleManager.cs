@@ -62,9 +62,9 @@ namespace Tactics.Battle
             levelView = new LevelView();
             levelView.Init(this, LevelData, rows);
 
-            // Entities
-            var entitySprites = Resources.LoadAll<Sprite>("Sprites/Entities");
-            var tileSprites = Resources.LoadAll<Sprite>("Sprites/Tileset");
+            // Create Entities
+            Sprite[] entitySprites = Resources.LoadAll<Sprite>("Sprites/Entities");
+            Sprite[] tileSprites = Resources.LoadAll<Sprite>("Sprites/Tileset");
             Sprite entitySprite;
             for (int y = 0; y < height; y++)
             {
