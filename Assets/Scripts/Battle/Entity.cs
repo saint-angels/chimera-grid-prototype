@@ -87,7 +87,9 @@ namespace Tactics.Battle
                     }
                 }
             }
+            //Can't find a move to do
             return Deferred.GetFromPool().Resolve();
+
         }
 
         public void SetTargeted(bool isTargeted)

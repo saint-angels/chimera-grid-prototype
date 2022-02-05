@@ -24,10 +24,11 @@ namespace Tactics.Battle
         public Action<bool> OnBattleOver = (userWon) => { };
         public Action OnPlayerTurnEnded = () => { };
         public Action<Entity, Vector2Int, Vector2Int> OnCharacterMoved = (unit, oldPos, newPos) => { };
-        public Action<Entity, bool> OnEntitySelected = (entity, isSelected) => { };
+        public Action<Entity> OnEntitySelected = (entity) => { };
         public Action<List<Entity>, List<Entity>> OnUserCharacterActionsUpdate = (movable, attacking) => { };
         public Action<Entity, Entity, int> OnUnitAttack = (unit, actionType, damage) => { };
         public Action OnUnitMoveStarted = () => { };
+        public Action OnUnitDeselected = () => { };
 
         [SerializeField] private Transform entityContainer = null;
 
@@ -124,7 +125,7 @@ namespace Tactics.Battle
                     };
                     newEntity.OnSelected += (selectedEntity) =>
                     {
-                        OnEntitySelected(selectedEntity, true);
+                        OnEntitySelected(selectedEntity);
                     };
                     newEntity.OnAttack += (entity, target, damage) => OnUnitAttack(entity, target, damage);
                 }
@@ -132,7 +133,6 @@ namespace Tactics.Battle
                 LevelData.TilesEntities[gridPosition.x, gridPosition.y] = newEntity;
             }
         }
-
 
         public List<Entity> GetCharacters(EntityFaction? filterFaction = null)
         {
@@ -150,14 +150,8 @@ namespace Tactics.Battle
                 .ToList();
         }
 
-
-        public List<Entity> GetAllEntities()
-        {
-            return LevelData.Entities;
-        }
-
         //There could be only 1 entity at each tile at a time.
-        public Entity GetEntityAtPosition(int x, int y)
+        public Entity TryGetEntityAtPosition(int x, int y)
         {
             if (IsPointOnLevelGrid(x, y))
             {
@@ -180,7 +174,7 @@ namespace Tactics.Battle
             for (int xOffset = -range; xOffset <= range; xOffset++)
             {
                 Vector2Int offsetPosition = new Vector2Int(position.x + xOffset, position.y);
-                Entity entity = GetEntityAtPosition(offsetPosition.x, offsetPosition.y);
+                Entity entity = TryGetEntityAtPosition(offsetPosition.x, offsetPosition.y);
                 if (entity != null && entity != attacker && entity.Faction == targetFaction)
                 {
                     entitiesList.Add(entity);
@@ -191,7 +185,7 @@ namespace Tactics.Battle
             for (int yOffset = -range; yOffset <= range; yOffset++)
             {
                 Vector2Int offsetPosition = new Vector2Int(position.x, position.y + yOffset);
-                Entity entity = GetEntityAtPosition(offsetPosition.x, offsetPosition.y);
+                Entity entity = TryGetEntityAtPosition(offsetPosition.x, offsetPosition.y);
                 if (entity != null && entity != attacker && entity.Faction == targetFaction)
                 {
                     entitiesList.Add(entity);
@@ -310,6 +304,23 @@ namespace Tactics.Battle
                                 {
                                     SelectUserCharacter(movingCharacter);
                                 }
+                                else
+                                {
+                                    //Unit can't attack, so we remove him from the list of units who haven't used
+                                    //their attack action
+                                    AttackingUserChars.Remove(movingCharacter);
+                                    OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
+
+                                    //Select the next character that can still do an action
+                                    if (MovableUserChars.Count != 0)
+                                    {
+                                        SelectUserCharacter(MovableUserChars[0]);
+                                    }
+                                    if (AttackingUserChars.Count != 0)
+                                    {
+                                        SelectUserCharacter(AttackingUserChars[0]);
+                                    }
+                                }
                             });
                     }
                     break;
@@ -337,6 +348,7 @@ namespace Tactics.Battle
 
         private void SelectUserCharacter(Entity selectedCharacter)
         {
+            OnUnitDeselected();
             this.selectedCharacter = selectedCharacter;
 
             bool movementAllowed = MovableUserChars.Contains(selectedCharacter);

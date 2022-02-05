@@ -51,7 +51,7 @@ namespace Tactics
             {
                 Vector3 nodeWorldPosition = (Vector3)node.position;
                 Vector2Int nodeGridPosition = GridHelper.ToGridCoordinatesFloor(nodeWorldPosition.x, nodeWorldPosition.y);
-                Entity entityAtNode = battleManager.GetEntityAtPosition(nodeGridPosition.x, nodeGridPosition.y);
+                Entity entityAtNode = battleManager.TryGetEntityAtPosition(nodeGridPosition.x, nodeGridPosition.y);
                 if (entityAtNode != null && entityAtNode.Type == EntityType.Obstacle)
                 {
                     node.Walkable = false;
@@ -130,7 +130,7 @@ namespace Tactics
                         }
                         Vector3 neighbourWorldPosition = (Vector3)neighbour.position;
                         Vector2Int neigbourGridCoordinates = GridHelper.ToGridCoordinatesFloor(neighbourWorldPosition.x, neighbourWorldPosition.y);
-                        Entity entityAtNode = battleManager.GetEntityAtPosition(neigbourGridCoordinates.x, neigbourGridCoordinates.y);
+                        Entity entityAtNode = battleManager.TryGetEntityAtPosition(neigbourGridCoordinates.x, neigbourGridCoordinates.y);
                         bool nodeAcceptable = onlyEmptyNodes == false || entityAtNode == null;
                         if (nodeAcceptable)
                         {

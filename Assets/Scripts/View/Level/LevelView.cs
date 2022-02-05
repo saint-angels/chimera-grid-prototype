@@ -55,15 +55,12 @@ namespace Tactics.View.Level
                 HideAllBreadCrumbs();
             };
 
-            battleManager.OnEntitySelected += (entity, isSelected) =>
+            battleManager.OnEntitySelected += (entity) =>
             {
                 HideAllBreadCrumbs();
-                if (isSelected)
+                foreach (var moveTargetPosition in entity.possibleMoveTargets)
                 {
-                    foreach (var moveTargetPosition in entity.possibleMoveTargets)
-                    {
-                        SetBreadCrumbVisible(moveTargetPosition.x, moveTargetPosition.y, true);
-                    }
+                    SetBreadCrumbVisible(moveTargetPosition.x, moveTargetPosition.y, true);
                 }
             };
 

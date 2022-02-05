@@ -59,7 +59,12 @@ namespace Tactics.View.Entities
                 HideTargetVisuals();
             };
 
-            entityOwner.OnSelected += (entity) =>
+            battleManager.OnUnitDeselected += () =>
+            {
+                HideTargetVisuals();
+            };
+
+            battleManager.OnEntitySelected += (entity) =>
             {
                 bool ownerSelected = entity == entityOwner;
                 Selection.gameObject.SetActive(ownerSelected);
