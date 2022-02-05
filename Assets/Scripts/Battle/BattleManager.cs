@@ -263,18 +263,34 @@ namespace Tactics.Battle
                             SelectUserCharacter(clickedCharacter);
                             break;
                         case EntityFaction.Enemy:
-                            bool characterCanAttack = AttackingUserChars.Contains(selectedCharacter);
-                            if (characterCanAttack && selectedCharacter.CanAttack(clickedCharacter))
+                            bool hasAttackAction = AttackingUserChars.Contains(selectedCharacter);
+                            if (hasAttackAction && selectedCharacter.CanAttack(clickedCharacter))
                             {
                                 AttackingUserChars.Remove(selectedCharacter);
                                 OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
                                 selectedCharacter.Attack(clickedCharacter);
-                                bool canMove = MovableUserChars.Contains(selectedCharacter);
-                                if (canMove)
+
+                                bool isGameOver = CheckIsGameOver();
+                                if (isGameOver == false)
                                 {
-                                    SelectUserCharacter(selectedCharacter);
+                                    bool canMove = MovableUserChars.Contains(selectedCharacter);
+                                    if (canMove)
+                                    {
+                                        SelectUserCharacter(selectedCharacter);
+                                    }
+                                    else
+                                    {
+                                        //Select the next character that can still do an action
+                                        if (MovableUserChars.Count != 0)
+                                        {
+                                            SelectUserCharacter(MovableUserChars[0]);
+                                        }
+                                        else if (AttackingUserChars.Count != 0)
+                                        {
+                                            SelectUserCharacter(AttackingUserChars[0]);
+                                        }
+                                    }
                                 }
-                                CheckIsGameOver();
                             }
                             break;
                     }
@@ -299,26 +315,26 @@ namespace Tactics.Battle
                             {
                                 MovableUserChars.Remove(movingCharacter);
                                 OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
-                                bool canAttack = AttackingUserChars.Contains(movingCharacter);
-                                if (canAttack)
-                                {
-                                    SelectUserCharacter(movingCharacter);
-                                }
-                                else
-                                {
-                                    //Unit can't attack, so we remove him from the list of units who haven't used
-                                    //their attack action
-                                    AttackingUserChars.Remove(movingCharacter);
-                                    OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
 
-                                    //Select the next character that can still do an action
-                                    if (MovableUserChars.Count != 0)
+                                bool isGameOver = CheckIsGameOver();
+                                if (isGameOver == false)
+                                {
+                                    bool canAttack = AttackingUserChars.Contains(movingCharacter);
+                                    if (canAttack)
                                     {
-                                        SelectUserCharacter(MovableUserChars[0]);
+                                        SelectUserCharacter(movingCharacter);
                                     }
-                                    if (AttackingUserChars.Count != 0)
+                                    else
                                     {
-                                        SelectUserCharacter(AttackingUserChars[0]);
+                                        //Select the next character that can still do an action
+                                        if (MovableUserChars.Count != 0)
+                                        {
+                                            SelectUserCharacter(MovableUserChars[0]);
+                                        }
+                                        else if (AttackingUserChars.Count != 0)
+                                        {
+                                            SelectUserCharacter(AttackingUserChars[0]);
+                                        }
                                     }
                                 }
                             });
