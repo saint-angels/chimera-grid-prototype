@@ -5,6 +5,7 @@ using System.IO;
 using Tactics.Battle;
 using Tactics.Helpers;
 using Tactics.View;
+using Tactics.View.Level;
 
 namespace Tactics
 {
@@ -29,7 +30,7 @@ namespace Tactics
         void Start()
         {
             hud.Init(battleManager);
-            battleManager.Init(input, gridNavigator);
+            battleManager.Init(input, gridNavigator, new LevelView());
             gridNavigator.Init(battleManager);
             input.Init(battleManager);
         }

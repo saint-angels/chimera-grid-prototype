@@ -44,7 +44,7 @@ namespace Tactics.Battle
         private GridNavigator gridNavigator;
         private BattleManager battleManager;
 
-        public void Init(Vector2Int gridPosition, BattleManager battleManager, GridNavigator gridNavigator, Sprite sprite, EntityType type, EntityFaction faction, LevelView levelService)
+        public void Init(Vector2Int gridPosition, BattleManager battleManager, GridNavigator gridNavigator, EntityType type, EntityFaction faction, LevelView levelService)
         {
             this.levelService = levelService;
             this.gridNavigator = gridNavigator;
@@ -53,7 +53,7 @@ namespace Tactics.Battle
             Type = type;
             Faction = faction;
             EntityView = GetComponent<EntityView>() ?? gameObject.AddComponent<EntityView>();
-            EntityView.Init(this, sprite, type, gridPosition, battleManager);
+            EntityView.Init(this, type, gridPosition, battleManager);
         }
 
         public void AddCharacterParams(CharacterConfig config)

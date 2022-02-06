@@ -30,23 +30,21 @@ namespace Tactics.Battle
 
         [SerializeField] private Transform entityContainer = null;
 
-        private LevelView levelView;
-
         private Entity entityPrefab;
         private Entity selectedCharacter;
 
         private TurnState turnState;
 
         private LevelData LevelData;
-        private List<Entity> MovableUserChars = new List<Entity>();
-        private List<Entity> AttackingUserChars = new List<Entity>();
+        private List<Entity> MovableUserUnits = new List<Entity>();
+        private List<Entity> AttackingUserUnits = new List<Entity>();
 
-        public void Init(InputSystem inputSystem, GridNavigator gridNavigator)
+        public void Init(InputSystem inputSystem, GridNavigator gridNavigator, LevelView levelView)
         {
-            MovableUserChars = new List<Entity>();
-            AttackingUserChars = new List<Entity>();
-            entityPrefab = Resources.Load<Entity>("Prefabs/Entity");
-            var levelText = Resources.Load<TextAsset>($"Levels/Level1").text;
+            MovableUserUnits = new List<Entity>();
+            AttackingUserUnits = new List<Entity>();
+
+            string levelText = Resources.Load<TextAsset>($"Levels/Level1").text;
             string[] rows = levelText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
             int width = int.Parse(rows[0]);
             int height = int.Parse(rows[1]);
@@ -59,13 +57,9 @@ namespace Tactics.Battle
                 TilesEntities = new Entity[width, height]
             };
 
-            levelView = new LevelView();
             levelView.Init(this, LevelData, rows);
 
             // Create Entities
-            Sprite[] entitySprites = Resources.LoadAll<Sprite>("Sprites/Entities");
-            Sprite[] tileSprites = Resources.LoadAll<Sprite>("Sprites/Tileset");
-            Sprite entitySprite;
             for (int y = 0; y < height; y++)
             {
                 var row = rows[4 + height + y];
@@ -76,18 +70,15 @@ namespace Tactics.Battle
                     switch (row[x])
                     {
                         case 'e':
-                            entitySprite = entitySprites[UnityEngine.Random.Range(0, 5)];
-                            InstantiateEntity(gridPosition, entitySprite, EntityType.Character, EntityFaction.Enemy, gridNavigator);
+                            InstantiateEntity(gridPosition, EntityType.Character, EntityFaction.Enemy, gridNavigator);
                             break;
 
                         case 'p':
-                            entitySprite = entitySprites[UnityEngine.Random.Range(5, 10)];
-                            InstantiateEntity(gridPosition, entitySprite, EntityType.Character, EntityFaction.Player, gridNavigator);
+                            InstantiateEntity(gridPosition, EntityType.Character, EntityFaction.Player, gridNavigator);
                             break;
 
                         case '#':
-                            entitySprite = tileSprites[49];
-                            InstantiateEntity(gridPosition, entitySprite, EntityType.Obstacle, EntityFaction.Neutral, gridNavigator);
+                            InstantiateEntity(gridPosition, EntityType.Obstacle, EntityFaction.Neutral, gridNavigator);
                             break;
                     }
                 }
@@ -95,15 +86,27 @@ namespace Tactics.Battle
 
             StartPlayerTurn();
 
-            void InstantiateEntity(Vector2Int gridPosition,
-                                           Sprite sprite,
-                                           EntityType type,
-                                           EntityFaction faction,
-                                           GridNavigator gridNavigator)
+            void InstantiateEntity(Vector2Int gridPosition, EntityType type, EntityFaction faction, GridNavigator gridNavigator)
             {
+
+                Entity entityPrefab;
+                switch (type)
+                {
+                    case EntityType.Character:
+                        string unitName = faction == EntityFaction.Player ? "UnitUser" : "UnitEnemy";
+                        entityPrefab = Resources.Load<Entity>($"Prefabs/{unitName}");
+                        break;
+                    case EntityType.Obstacle:
+                        entityPrefab = Resources.Load<Entity>($"Prefabs/Obstacle");
+                        break;
+                    default:
+                        Debug.LogError($"Creating entity of type {type} is not supported");
+                        return;
+                }
+
                 Entity newEntity = GameObject.Instantiate(entityPrefab, Vector3.zero, Quaternion.identity, entityContainer);
-                newEntity.name = type.ToString();
-                newEntity.Init(gridPosition, this, gridNavigator, sprite, type, faction, levelView);
+                newEntity.name = $"{type}_{faction}";
+                newEntity.Init(gridPosition, this, gridNavigator, type, faction, levelView);
                 if (type == EntityType.Character)
                 {
                     string pathToConfig = "Configs/" + "DefaultCharacterConfig";
@@ -250,17 +253,17 @@ namespace Tactics.Battle
                             SelectUserCharacter(clickedCharacter);
                             break;
                         case EntityFaction.Enemy:
-                            bool hasAttackAction = AttackingUserChars.Contains(selectedCharacter);
+                            bool hasAttackAction = AttackingUserUnits.Contains(selectedCharacter);
                             if (hasAttackAction && selectedCharacter.CanAttack(clickedCharacter))
                             {
-                                AttackingUserChars.Remove(selectedCharacter);
-                                OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
+                                AttackingUserUnits.Remove(selectedCharacter);
+                                OnUserCharacterActionsUpdate(MovableUserUnits, AttackingUserUnits);
                                 selectedCharacter.Attack(clickedCharacter);
 
                                 bool isGameOver = CheckIsGameOver();
                                 if (isGameOver == false)
                                 {
-                                    bool canMove = MovableUserChars.Contains(selectedCharacter);
+                                    bool canMove = MovableUserUnits.Contains(selectedCharacter);
                                     if (canMove)
                                     {
                                         SelectUserCharacter(selectedCharacter);
@@ -268,13 +271,13 @@ namespace Tactics.Battle
                                     else
                                     {
                                         //Select the next character that can still do an action
-                                        if (MovableUserChars.Count != 0)
+                                        if (MovableUserUnits.Count != 0)
                                         {
-                                            SelectUserCharacter(MovableUserChars[0]);
+                                            SelectUserCharacter(MovableUserUnits[0]);
                                         }
-                                        else if (AttackingUserChars.Count != 0)
+                                        else if (AttackingUserUnits.Count != 0)
                                         {
-                                            SelectUserCharacter(AttackingUserChars[0]);
+                                            SelectUserCharacter(AttackingUserUnits[0]);
                                         }
                                     }
                                 }
@@ -300,13 +303,13 @@ namespace Tactics.Battle
                         movingCharacter.Move(gridPosition)
                             .Done(() =>
                             {
-                                MovableUserChars.Remove(movingCharacter);
-                                OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
+                                MovableUserUnits.Remove(movingCharacter);
+                                OnUserCharacterActionsUpdate(MovableUserUnits, AttackingUserUnits);
 
                                 bool isGameOver = CheckIsGameOver();
                                 if (isGameOver == false)
                                 {
-                                    bool canAttack = AttackingUserChars.Contains(movingCharacter);
+                                    bool canAttack = AttackingUserUnits.Contains(movingCharacter);
                                     if (canAttack)
                                     {
                                         SelectUserCharacter(movingCharacter);
@@ -314,13 +317,13 @@ namespace Tactics.Battle
                                     else
                                     {
                                         //Select the next character that can still do an action
-                                        if (MovableUserChars.Count != 0)
+                                        if (MovableUserUnits.Count != 0)
                                         {
-                                            SelectUserCharacter(MovableUserChars[0]);
+                                            SelectUserCharacter(MovableUserUnits[0]);
                                         }
-                                        else if (AttackingUserChars.Count != 0)
+                                        else if (AttackingUserUnits.Count != 0)
                                         {
-                                            SelectUserCharacter(AttackingUserChars[0]);
+                                            SelectUserCharacter(AttackingUserUnits[0]);
                                         }
                                     }
                                 }
@@ -351,11 +354,11 @@ namespace Tactics.Battle
 
         private void StartPlayerTurn()
         {
-            MovableUserChars.Clear();
-            AttackingUserChars.Clear();
-            MovableUserChars.AddRange(GetCharacters(EntityFaction.Player));
-            AttackingUserChars.AddRange(MovableUserChars);
-            OnUserCharacterActionsUpdate(MovableUserChars, AttackingUserChars);
+            MovableUserUnits.Clear();
+            AttackingUserUnits.Clear();
+            MovableUserUnits.AddRange(GetCharacters(EntityFaction.Player));
+            AttackingUserUnits.AddRange(MovableUserUnits);
+            OnUserCharacterActionsUpdate(MovableUserUnits, AttackingUserUnits);
 
             turnState = TurnState.UserIdle;
         }
@@ -365,8 +368,8 @@ namespace Tactics.Battle
             OnUnitDeselected();
             this.selectedCharacter = selectedCharacter;
 
-            bool movementAllowed = MovableUserChars.Contains(selectedCharacter);
-            bool attackAllowed = AttackingUserChars.Contains(selectedCharacter);
+            bool movementAllowed = MovableUserUnits.Contains(selectedCharacter);
+            bool attackAllowed = AttackingUserUnits.Contains(selectedCharacter);
             selectedCharacter.Select(movementAllowed, attackAllowed);
             turnState = TurnState.UserCharSelected;
         }

@@ -25,7 +25,6 @@ namespace Tactics.View.Entities
         private LevelView levelService;
 
         public void Init(Entity entityOwner,
-                         Sprite sprite,
                          EntityType type,
                          Vector2Int gridPosition,
                          BattleManager battleManager)
@@ -76,7 +75,6 @@ namespace Tactics.View.Entities
             };
 
             Renderer.sortingOrder = GridHelper.GetSortingOrder(gridPosition.x, gridPosition.y);
-            Renderer.sprite = sprite;
 
             //Turn actions indicators are turned off for everyone
             //including user's characters

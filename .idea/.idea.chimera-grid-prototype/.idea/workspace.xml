@@ -3,11 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ef8bb184-c28c-4684-b024-31b9cf746d75" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.chimera-grid-prototype/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.chimera-grid-prototype/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/Levels/Level1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Levels/Level1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Battle/Entity.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Battle/Entity.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GridNavigator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GridNavigator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/InputSystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/InputSystem.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,6 +35,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="XThreadsFramesViewSplitterKey" value="0.50098234" />
     <property name="rider.run.widget.enabled.cache" value="false" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
@@ -103,37 +100,5 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs</url>
-          <line>309</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs" initialLine="309" containingFunctionPresentation="lambda expression inside method 'HandleEmptyTileClick'">
-            <startOffsets>
-              <option value="12773" />
-            </startOffsets>
-            <endOffsets>
-              <option value="12816" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs</url>
-          <line>298</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Scripts/Battle/BattleManager.cs" initialLine="298" containingFunctionPresentation="lambda expression inside method 'HandleEmptyTileClick'">
-            <startOffsets>
-              <option value="12068" />
-            </startOffsets>
-            <endOffsets>
-              <option value="12109" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
