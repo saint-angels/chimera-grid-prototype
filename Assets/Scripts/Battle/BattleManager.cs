@@ -59,7 +59,7 @@ namespace Tactics.Battle
 
             levelView.Init(this, LevelData, rows);
 
-            // Create Entities
+            // Parse the level data and init Entities
             for (int y = 0; y < height; y++)
             {
                 var row = rows[4 + height + y];

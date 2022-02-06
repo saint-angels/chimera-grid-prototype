@@ -14,6 +14,8 @@ namespace Tactics.Battle
     [SelectionBase]
     public class Entity : MonoBehaviour
     {
+
+        public event Action<EntityType, Vector2Int, BattleManager> OnInit = (type, gridPos, battleManager) => { };
         public event Action<Vector2Int, int, float> OnStep = (newPosition, stepIndex, stepDuration) => { };
         public event Action<Entity, Vector2Int, Vector2Int> OnMoved = (entity, oldPosition, newPosition) => { };
         public event Action<Entity, Entity, int> OnAttack = (owner, target, damage) => { };
@@ -26,7 +28,6 @@ namespace Tactics.Battle
         public EntityType Type { get; private set; }
         public EntityFaction Faction { get; private set; }
         public Vector2Int GridPosition { get; private set; }
-        public EntityView EntityView { get; private set; }
 
         public int MaxWalkDistance { get; private set; }
         public int AttackDamage { get; private set; }
@@ -52,8 +53,7 @@ namespace Tactics.Battle
             GridPosition = gridPosition;
             Type = type;
             Faction = faction;
-            EntityView = GetComponent<EntityView>() ?? gameObject.AddComponent<EntityView>();
-            EntityView.Init(this, type, gridPosition, battleManager);
+            OnInit(type, gridPosition, battleManager);
         }
 
         public void AddCharacterParams(CharacterConfig config)

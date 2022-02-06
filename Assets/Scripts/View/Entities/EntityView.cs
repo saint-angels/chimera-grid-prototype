@@ -24,80 +24,79 @@ namespace Tactics.View.Entities
         private Entity entityOwner;
         private LevelView levelService;
 
-        public void Init(Entity entityOwner,
-                         EntityType type,
-                         Vector2Int gridPosition,
-                         BattleManager battleManager)
+        void Awake()
         {
-            this.entityOwner = entityOwner;
-
-            entityOwner.OnDamaged += OnEntityDamaged;
-            entityOwner.OnDestroyed += OnEntityDestroyed;
-            entityOwner.OnTargeted += OnEntityTargeted;
-            entityOwner.OnStep += OnEntityStep;
-
-            battleManager.OnUnitAttack += (unit, target, dmg) =>
+            entityOwner = GetComponent<Entity>();
+            entityOwner.OnInit += (type, gridPosition, battleManager) =>
             {
-                HideTargetVisuals();
-            };
-            battleManager.OnUserCharacterActionsUpdate += (movableChars, attackingChars) =>
-            {
-                bool canMove = movableChars.Contains(entityOwner);
-                bool canAttack = attackingChars.Contains(entityOwner);
-                attackAvailableIndicator.SetActive(canAttack);
-                moveAvailableIndicator.SetActive(canMove);
-            };
+                entityOwner.OnDamaged += OnEntityDamaged;
+                entityOwner.OnDestroyed += OnEntityDestroyed;
+                entityOwner.OnTargeted += OnEntityTargeted;
+                entityOwner.OnStep += OnEntityStep;
 
-            battleManager.OnUnitMoveStarted += () =>
-            {
-                HideTargetVisuals();
-            };
-
-            battleManager.OnPlayerTurnEnded += () =>
-            {
-                HideTargetVisuals();
-            };
-
-            battleManager.OnUnitDeselected += () =>
-            {
-                HideTargetVisuals();
-            };
-
-            battleManager.OnEntitySelected += (entity) =>
-            {
-                bool ownerSelected = entity == entityOwner;
-                Selection.gameObject.SetActive(ownerSelected);
-                if (ownerSelected)
+                battleManager.OnUnitAttack += (unit, target, dmg) =>
                 {
-                    Selection.gameObject.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.5f);
-                    Root.Audio.PlaySelect();
+                    HideTargetVisuals();
+                };
+                battleManager.OnUserCharacterActionsUpdate += (movableChars, attackingChars) =>
+                {
+                    bool canMove = movableChars.Contains(entityOwner);
+                    bool canAttack = attackingChars.Contains(entityOwner);
+                    attackAvailableIndicator.SetActive(canAttack);
+                    moveAvailableIndicator.SetActive(canMove);
+                };
+
+                battleManager.OnUnitMoveStarted += () =>
+                {
+                    HideTargetVisuals();
+                };
+
+                battleManager.OnPlayerTurnEnded += () =>
+                {
+                    HideTargetVisuals();
+                };
+
+                battleManager.OnUnitDeselected += () =>
+                {
+                    HideTargetVisuals();
+                };
+
+                battleManager.OnEntitySelected += (entity) =>
+                {
+                    bool ownerSelected = entity == entityOwner;
+                    Selection.gameObject.SetActive(ownerSelected);
+                    if (ownerSelected)
+                    {
+                        Selection.gameObject.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0), 0.5f);
+                        Root.Audio.PlaySelect();
+                    }
+                };
+
+                Renderer.sortingOrder = GridHelper.GetSortingOrder(gridPosition.x, gridPosition.y);
+
+                //Turn actions indicators are turned off for everyone
+                //including user's characters
+                attackAvailableIndicator.SetActive(false);
+                moveAvailableIndicator.SetActive(false);
+
+                HealthBarContainer.SetActive(false);
+                HealthBar.SetActive(false);
+                switch (type)
+                {
+                    case EntityType.Character:
+                        HealthBarContainer.SetActive(true);
+                        HealthBar.SetActive(true);
+                        HealthBar.transform.localScale = Vector3.one;
+                        break;
+                    case EntityType.Obstacle:
+                        break;
+                    default:
+                        Debug.LogError($"EntityView doesn't support entity of type{type}");
+                        break;
                 }
+
+                transform.position = GridHelper.ToWorldCoordinates(gridPosition);
             };
-
-            Renderer.sortingOrder = GridHelper.GetSortingOrder(gridPosition.x, gridPosition.y);
-
-            //Turn actions indicators are turned off for everyone
-            //including user's characters
-            attackAvailableIndicator.SetActive(false);
-            moveAvailableIndicator.SetActive(false);
-
-            HealthBarContainer.SetActive(false);
-            HealthBar.SetActive(false);
-            switch (type)
-            {
-                case EntityType.Character:
-                    HealthBarContainer.SetActive(true);
-                    HealthBar.SetActive(true);
-                    HealthBar.transform.localScale = Vector3.one;
-                    break;
-                case EntityType.Obstacle:
-                    break;
-                default:
-                    Debug.LogError($"EntityView doesn't support entity of type{type}");
-                    break;
-            }
-
-            transform.position = GridHelper.ToWorldCoordinates(gridPosition);
         }
 
         public void HideTargetVisuals()
