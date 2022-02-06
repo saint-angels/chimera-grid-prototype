@@ -14,7 +14,7 @@ namespace Tactics
     public class GridNavigator : MonoBehaviour
     {
         private BlockManager blockManager;
-        private Dictionary<Entity, SingleNodeBlocker> characterNodeBlockers = new Dictionary<Entity, SingleNodeBlocker>(); //TODO: Clear on char death
+        private Dictionary<EntityShell, SingleNodeBlocker> characterNodeBlockers = new Dictionary<EntityShell, SingleNodeBlocker>(); //TODO: Clear on char death
         private BattleManager battleManager;
 
         public void Init(BattleManager battleManager)
@@ -51,7 +51,7 @@ namespace Tactics
             {
                 Vector3 nodeWorldPosition = (Vector3)node.position;
                 Vector2Int nodeGridPosition = GridHelper.ToGridCoordinatesFloor(nodeWorldPosition.x, nodeWorldPosition.y);
-                Entity entityAtNode = battleManager.TryGetEntityAtPosition(nodeGridPosition.x, nodeGridPosition.y);
+                EntityShell entityAtNode = battleManager.TryGetEntityAtPosition(nodeGridPosition.x, nodeGridPosition.y);
                 if (entityAtNode != null && entityAtNode.Type == EntityType.Obstacle)
                 {
                     node.Walkable = false;
@@ -59,7 +59,7 @@ namespace Tactics
             }
         }
 
-        public List<Vector2Int> GetPath(Entity entity, Vector2Int to, int maxSteps, Entity passableBlockingEntity = null)
+        public List<Vector2Int> GetPath(EntityShell entity, Vector2Int to, int maxSteps, EntityShell passableBlockingEntity = null)
         {
             Vector2 fromWorldPosition = GridHelper.ToWorldCoordinates(entity.GridPosition);
             Vector2 toWorldPosition = GridHelper.ToWorldCoordinates(to);
@@ -130,7 +130,7 @@ namespace Tactics
                         }
                         Vector3 neighbourWorldPosition = (Vector3)neighbour.position;
                         Vector2Int neigbourGridCoordinates = GridHelper.ToGridCoordinatesFloor(neighbourWorldPosition.x, neighbourWorldPosition.y);
-                        Entity entityAtNode = battleManager.TryGetEntityAtPosition(neigbourGridCoordinates.x, neigbourGridCoordinates.y);
+                        EntityShell entityAtNode = battleManager.TryGetEntityAtPosition(neigbourGridCoordinates.x, neigbourGridCoordinates.y);
                         bool nodeAcceptable = onlyEmptyNodes == false || entityAtNode == null;
                         if (nodeAcceptable)
                         {

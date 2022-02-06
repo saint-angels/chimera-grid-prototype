@@ -1,28 +1,25 @@
-﻿using DG.Tweening;
-using SharedData;
+﻿using SharedData;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Tactics.View.Entities;
 using Tactics.Helpers.Promises;
 using Tactics.View.Level;
 
 namespace Tactics.Battle
 {
     [SelectionBase]
-    public class Entity : MonoBehaviour
+    public class EntityShell : MonoBehaviour
     {
-
         public event Action<EntityType, Vector2Int, BattleManager> OnInit = (type, gridPos, battleManager) => { };
         public event Action<Vector2Int, int, float> OnStep = (newPosition, stepIndex, stepDuration) => { };
-        public event Action<Entity, Vector2Int, Vector2Int> OnMoved = (entity, oldPosition, newPosition) => { };
-        public event Action<Entity, Entity, int> OnAttack = (owner, target, damage) => { };
+        public event Action<EntityShell, Vector2Int, Vector2Int> OnMoved = (entity, oldPosition, newPosition) => { };
+        public event Action<EntityShell, EntityShell, int> OnAttack = (owner, target, damage) => { };
         public event Action<float> OnDamaged = (currentHealthPercentage) => { };
-        public event Action<Entity> OnSelected = (entity) => { };
+        public event Action<EntityShell> OnSelected = (entity) => { };
         public event Action<bool> OnTargeted = (isTargeted) => { };
-        public event Action<Entity> OnDestroyed = (entity) => { };
+        public event Action<EntityShell> OnDestroyed = (entity) => { };
         public event Action OnMoveStarted = () => { };
 
         public EntityType Type { get; private set; }
@@ -36,7 +33,7 @@ namespace Tactics.Battle
 
         //TODO: Make private?
         public List<Vector2Int> possibleMoveTargets = new List<Vector2Int>();
-        private List<Entity> possibleAttackTargets = new List<Entity>();
+        private List<EntityShell> possibleAttackTargets = new List<EntityShell>();
 
         private int maxHealth;
         //TODO: Entity shouldn't know about Step duration
@@ -71,7 +68,7 @@ namespace Tactics.Battle
             bool attackSuccess = TryAttackFractionInRange(opposingFaction);
             if (attackSuccess == false)
             {
-                Entity closestPlayerCharacter = battleManager.GetClosestCharacter(GridPosition, opposingFaction);
+                EntityShell closestPlayerCharacter = battleManager.GetClosestCharacter(GridPosition, opposingFaction);
                 if (closestPlayerCharacter != null)
                 {
                     List<Vector2Int> path = gridNavigator.GetPath(this, closestPlayerCharacter.GridPosition, MaxWalkDistance, closestPlayerCharacter);
@@ -146,8 +143,8 @@ namespace Tactics.Battle
             if (attackAllowed)
             {
                 EntityFaction opposingFaction = Faction == EntityFaction.Player ? EntityFaction.Enemy : EntityFaction.Player;
-                List<Entity> entitiesInRange = battleManager.GetEntitiesInRange(this, opposingFaction);
-                foreach (Entity entity in entitiesInRange)
+                List<EntityShell> entitiesInRange = battleManager.GetEntitiesInRange(this, opposingFaction);
+                foreach (EntityShell entity in entitiesInRange)
                 {
                     entity.SetTargeted(true);
                     possibleAttackTargets.Add(entity);
@@ -156,7 +153,7 @@ namespace Tactics.Battle
             OnSelected(this);
         }
 
-        public bool CanAttack(Entity entity)
+        public bool CanAttack(EntityShell entity)
         {
             return possibleAttackTargets.Contains(entity);
         }
@@ -173,7 +170,7 @@ namespace Tactics.Battle
             OnDamaged(currentHealthPercentage);
         }
 
-        public void Attack(Entity target)
+        public void Attack(EntityShell target)
         {
             OnAttack(this, target, AttackDamage);
             target.Damage(AttackDamage);
@@ -186,7 +183,7 @@ namespace Tactics.Battle
 
         private bool TryAttackFractionInRange(EntityFaction targetFaction)
         {
-            List<Entity> entitiesInRange = battleManager.GetEntitiesInRange(this, targetFaction);
+            List<EntityShell> entitiesInRange = battleManager.GetEntitiesInRange(this, targetFaction);
             if (entitiesInRange.Count > 0)
             {
                 Attack(entitiesInRange[0]);

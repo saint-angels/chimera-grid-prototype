@@ -21,12 +21,12 @@ namespace Tactics.View.Entities
         [SerializeField] private GameObject attackAvailableIndicator;
         [SerializeField] private GameObject moveAvailableIndicator;
 
-        private Entity entityOwner;
+        private EntityShell entityOwner;
         private LevelView levelService;
 
         void Awake()
         {
-            entityOwner = GetComponent<Entity>();
+            entityOwner = GetComponent<EntityShell>();
             entityOwner.OnInit += (type, gridPosition, battleManager) =>
             {
                 entityOwner.OnDamaged += OnEntityDamaged;
@@ -151,7 +151,7 @@ namespace Tactics.View.Entities
             }
         }
 
-        private void OnEntityDestroyed(Entity entity)
+        private void OnEntityDestroyed(EntityShell entity)
         {
             transform.DOMoveX(UnityEngine.Random.Range(-3f, 3f), 4f).SetEase(Ease.OutQuart);
             transform.GetChild(0).DOLocalRotate(new Vector3(0, 0, 180f), 2f);

@@ -29,7 +29,7 @@ namespace Tactics
                 bool isPointOnLevelGrid = battleManager.IsPointOnLevelGrid(clickedCoordinates.x, clickedCoordinates.y);
                 if (isPointOnLevelGrid)
                 {
-                    Entity clickedEntity = battleManager.TryGetEntityAtPosition(clickedCoordinates.x, clickedCoordinates.y);
+                    EntityShell clickedEntity = battleManager.TryGetEntityAtPosition(clickedCoordinates.x, clickedCoordinates.y);
                     if (clickedEntity != null)
                     {
                         if (clickedEntity.Type == EntityType.Character)

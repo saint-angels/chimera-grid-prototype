@@ -21,28 +21,28 @@ namespace Tactics.Battle
 
         public Action<bool> OnBattleOver = (userWon) => { };
         public Action OnPlayerTurnEnded = () => { };
-        public Action<Entity, Vector2Int, Vector2Int> OnCharacterMoved = (unit, oldPos, newPos) => { };
-        public Action<Entity> OnEntitySelected = (entity) => { };
-        public Action<List<Entity>, List<Entity>> OnUserCharacterActionsUpdate = (movable, attacking) => { };
-        public Action<Entity, Entity, int> OnUnitAttack = (unit, actionType, damage) => { };
+        public Action<EntityShell, Vector2Int, Vector2Int> OnCharacterMoved = (unit, oldPos, newPos) => { };
+        public Action<EntityShell> OnEntitySelected = (entity) => { };
+        public Action<List<EntityShell>, List<EntityShell>> OnUserCharacterActionsUpdate = (movable, attacking) => { };
+        public Action<EntityShell, EntityShell, int> OnUnitAttack = (unit, actionType, damage) => { };
         public Action OnUnitMoveStarted = () => { };
         public Action OnUnitDeselected = () => { };
 
         [SerializeField] private Transform entityContainer = null;
 
-        private Entity entityPrefab;
-        private Entity selectedCharacter;
+        private EntityShell entityPrefab;
+        private EntityShell selectedCharacter;
 
         private TurnState turnState;
 
         private LevelData LevelData;
-        private List<Entity> MovableUserUnits = new List<Entity>();
-        private List<Entity> AttackingUserUnits = new List<Entity>();
+        private List<EntityShell> MovableUserUnits = new List<EntityShell>();
+        private List<EntityShell> AttackingUserUnits = new List<EntityShell>();
 
         public void Init(InputSystem inputSystem, GridNavigator gridNavigator, LevelView levelView)
         {
-            MovableUserUnits = new List<Entity>();
-            AttackingUserUnits = new List<Entity>();
+            MovableUserUnits = new List<EntityShell>();
+            AttackingUserUnits = new List<EntityShell>();
 
             string levelText = Resources.Load<TextAsset>($"Levels/Level1").text;
             string[] rows = levelText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -53,8 +53,8 @@ namespace Tactics.Battle
             {
                 Width = width,
                 Height = height,
-                Entities = new List<Entity>(),
-                TilesEntities = new Entity[width, height]
+                Entities = new List<EntityShell>(),
+                TilesEntities = new EntityShell[width, height]
             };
 
             levelView.Init(this, LevelData, rows);
@@ -89,22 +89,22 @@ namespace Tactics.Battle
             void InstantiateEntity(Vector2Int gridPosition, EntityType type, EntityFaction faction, GridNavigator gridNavigator)
             {
 
-                Entity entityPrefab;
+                EntityShell entityPrefab;
                 switch (type)
                 {
                     case EntityType.Character:
                         string unitName = faction == EntityFaction.Player ? "UnitUser" : "UnitEnemy";
-                        entityPrefab = Resources.Load<Entity>($"Prefabs/{unitName}");
+                        entityPrefab = Resources.Load<EntityShell>($"Prefabs/{unitName}");
                         break;
                     case EntityType.Obstacle:
-                        entityPrefab = Resources.Load<Entity>($"Prefabs/Obstacle");
+                        entityPrefab = Resources.Load<EntityShell>($"Prefabs/Obstacle");
                         break;
                     default:
                         Debug.LogError($"Creating entity of type {type} is not supported");
                         return;
                 }
 
-                Entity newEntity = GameObject.Instantiate(entityPrefab, Vector3.zero, Quaternion.identity, entityContainer);
+                EntityShell newEntity = GameObject.Instantiate(entityPrefab, Vector3.zero, Quaternion.identity, entityContainer);
                 newEntity.name = $"{type}_{faction}";
                 newEntity.Init(gridPosition, this, gridNavigator, type, faction, levelView);
                 if (type == EntityType.Character)
@@ -135,7 +135,7 @@ namespace Tactics.Battle
             }
         }
 
-        public List<Entity> GetCharacters(EntityFaction? filterFaction = null)
+        public List<EntityShell> GetCharacters(EntityFaction? filterFaction = null)
         {
             return LevelData.Entities
                 .Where(e =>
@@ -152,7 +152,7 @@ namespace Tactics.Battle
         }
 
         //There could be only 1 entity at each tile at a time.
-        public Entity TryGetEntityAtPosition(int x, int y)
+        public EntityShell TryGetEntityAtPosition(int x, int y)
         {
             if (IsPointOnLevelGrid(x, y))
             {
@@ -164,18 +164,18 @@ namespace Tactics.Battle
             }
         }
 
-        public List<Entity> GetEntitiesInRange(Entity attacker, EntityFaction targetFaction)
+        public List<EntityShell> GetEntitiesInRange(EntityShell attacker, EntityFaction targetFaction)
         {
             int range = attacker.AttackRange;
             Vector2Int position = attacker.GridPosition;
 
-            List<Entity> entitiesList = new List<Entity>();
+            List<EntityShell> entitiesList = new List<EntityShell>();
 
             //Check x axis
             for (int xOffset = -range; xOffset <= range; xOffset++)
             {
                 Vector2Int offsetPosition = new Vector2Int(position.x + xOffset, position.y);
-                Entity entity = TryGetEntityAtPosition(offsetPosition.x, offsetPosition.y);
+                EntityShell entity = TryGetEntityAtPosition(offsetPosition.x, offsetPosition.y);
                 if (entity != null && entity != attacker && entity.Faction == targetFaction)
                 {
                     entitiesList.Add(entity);
@@ -186,7 +186,7 @@ namespace Tactics.Battle
             for (int yOffset = -range; yOffset <= range; yOffset++)
             {
                 Vector2Int offsetPosition = new Vector2Int(position.x, position.y + yOffset);
-                Entity entity = TryGetEntityAtPosition(offsetPosition.x, offsetPosition.y);
+                EntityShell entity = TryGetEntityAtPosition(offsetPosition.x, offsetPosition.y);
                 if (entity != null && entity != attacker && entity.Faction == targetFaction)
                 {
                     entitiesList.Add(entity);
@@ -196,7 +196,7 @@ namespace Tactics.Battle
             return entitiesList;
         }
 
-        public Entity GetClosestCharacter(Vector2Int targetPosition, EntityFaction faction)
+        public EntityShell GetClosestCharacter(Vector2Int targetPosition, EntityFaction faction)
         {
             return LevelData.Entities
                         .Where(p => p.Type == EntityType.Character && p.Faction == faction)
@@ -236,7 +236,7 @@ namespace Tactics.Battle
             }
         }
 
-        public void HandleCharacterClick(Entity clickedCharacter)
+        public void HandleCharacterClick(EntityShell clickedCharacter)
         {
             switch (turnState)
             {
@@ -363,7 +363,7 @@ namespace Tactics.Battle
             turnState = TurnState.UserIdle;
         }
 
-        private void SelectUserCharacter(Entity selectedCharacter)
+        private void SelectUserCharacter(EntityShell selectedCharacter)
         {
             OnUnitDeselected();
             this.selectedCharacter = selectedCharacter;
