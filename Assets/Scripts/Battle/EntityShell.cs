@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Tactics.Helpers.Promises;
-using Tactics.View.Level;
 
 namespace Tactics.Battle
 {
@@ -26,10 +25,11 @@ namespace Tactics.Battle
         public EntityFaction Faction { get; private set; }
         public Vector2Int GridPosition { get; private set; }
 
-        public int MaxWalkDistance { get; private set; }
-        public int AttackDamage { get; private set; }
-        public int HealthPoints { get; private set; }
         public int AttackRange { get; private set; }
+
+        private int maxWalkDistance;
+        private int attackDamage;
+        private int healthPoints;
 
         //TODO: Make private?
         public List<Vector2Int> possibleMoveTargets = new List<Vector2Int>();
@@ -54,10 +54,10 @@ namespace Tactics.Battle
         public void AddCharacterParams(CharacterConfig config)
         {
             this.AttackRange = config.attackRange;
-            this.AttackDamage = config.attackDamage;
+            this.attackDamage = config.attackDamage;
             this.maxHealth = config.maxHealth;
-            this.HealthPoints = config.maxHealth;
-            this.MaxWalkDistance = config.moveDistance;
+            this.healthPoints = config.maxHealth;
+            this.maxWalkDistance = config.moveDistance;
         }
 
         public IPromise MakeAITurn()
@@ -69,7 +69,7 @@ namespace Tactics.Battle
                 EntityShell closestPlayerCharacter = battleManager.GetClosestCharacter(GridPosition, opposingFaction);
                 if (closestPlayerCharacter != null)
                 {
-                    List<Vector2Int> path = gridNavigator.GetPath(this, closestPlayerCharacter.GridPosition, MaxWalkDistance, closestPlayerCharacter);
+                    List<Vector2Int> path = gridNavigator.GetPath(this, closestPlayerCharacter.GridPosition, maxWalkDistance, closestPlayerCharacter);
                     bool noPathFound = path == null;
                     if (noPathFound)
                     {
@@ -86,7 +86,6 @@ namespace Tactics.Battle
             }
             //Can't find a move to do
             return Deferred.GetFromPool().Resolve();
-
         }
 
         public void SetTargeted(bool isTargeted)
@@ -97,7 +96,7 @@ namespace Tactics.Battle
         public IPromise Move(Vector2Int target)
         {
             OnMoveStarted();
-            List<Vector2Int> path = gridNavigator.GetPath(this, target, MaxWalkDistance);
+            List<Vector2Int> path = gridNavigator.GetPath(this, target, maxWalkDistance);
             Deferred moveDeferred = Deferred.GetFromPool();
             if (path != null)
             {
@@ -131,7 +130,7 @@ namespace Tactics.Battle
 
             if (movementAllowed)
             {
-                gridNavigator.DoActionOnNeighbours(GridPosition, MaxWalkDistance, true,
+                gridNavigator.DoActionOnNeighbours(GridPosition, maxWalkDistance, true,
                     (depth, gridPosition) =>
                     {
                         possibleMoveTargets.Add(gridPosition);
@@ -158,20 +157,20 @@ namespace Tactics.Battle
 
         public void Damage(int damage)
         {
-            HealthPoints -= damage;
-            if (HealthPoints <= 0)
+            healthPoints -= damage;
+            if (healthPoints <= 0)
             {
                 OnDestroyed(this);
             }
 
-            float currentHealthPercentage = (float)HealthPoints / (float)maxHealth;
+            float currentHealthPercentage = (float)healthPoints / (float)maxHealth;
             OnDamaged(currentHealthPercentage);
         }
 
         public void Attack(EntityShell target)
         {
-            OnAttack(this, target, AttackDamage);
-            target.Damage(AttackDamage);
+            OnAttack(this, target, attackDamage);
+            target.Damage(attackDamage);
         }
 
         public bool CanMove(Vector2Int position)

@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Tactics;
 using SharedData;
 using UnityEngine;
 using Tactics.Helpers.Promises;
-using Tactics.View.Level;
 using Tactics.SharedData;
 
 namespace Tactics.Battle
@@ -31,11 +29,8 @@ namespace Tactics.Battle
 
         [SerializeField] private Transform entityContainer = null;
 
-        private EntityShell entityPrefab;
         private EntityShell selectedCharacter;
-
         private TurnState turnState;
-
         private LevelData LevelData;
         private List<EntityShell> MovableUserUnits = new List<EntityShell>();
         private List<EntityShell> AttackingUserUnits = new List<EntityShell>();
@@ -89,7 +84,6 @@ namespace Tactics.Battle
 
             void InstantiateEntity(Vector2Int gridPosition, EntityType type, EntityFaction faction, GridNavigator gridNavigator)
             {
-
                 EntityShell entityPrefab;
                 switch (type)
                 {
