@@ -21,6 +21,8 @@ namespace Tactics
 
         private static Root _instance;
 
+        private LevelView levelView;
+
         void Awake()
         {
             _instance = this;
@@ -30,7 +32,8 @@ namespace Tactics
         void Start()
         {
             hud.Init(battleManager);
-            battleManager.Init(input, gridNavigator, new LevelView());
+            levelView = new LevelView(battleManager);
+            battleManager.Init(input, gridNavigator);
             gridNavigator.Init(battleManager);
             input.Init(battleManager);
         }

@@ -29,17 +29,14 @@ namespace Tactics.View.Level
 
         private TileView[,] Tiles;
 
-        public LevelView()
+        public LevelView(BattleManager battleManager)
         {
             tileSprites = Resources.LoadAll<Sprite>("Sprites/Tileset");
             tilePrefab = Resources.Load<GameObject>("Prefabs/Tile");
 
             levelContainer = GameObject.Find("Level").transform;
             tilesContainer = levelContainer.transform.Find("Tiles");
-        }
 
-        public void Init(BattleManager battleManager, LevelData levelData, string[] rows)
-        {
             battleManager.OnPlayerTurnEnded += () =>
             {
                 HideAllBreadCrumbs();
@@ -64,26 +61,29 @@ namespace Tactics.View.Level
                 }
             };
 
-            int width = levelData.Width;
-            int height = levelData.Height;
-            GridSize = new Vector2Int(width, height);
-
-            Tiles = new TileView[width, height];
-
-            this.LevelData = levelData;
-            // Ground
-            for (int y = 0; y < height; y++)
+            battleManager.OnLevelInit += (levelData, rows) =>
             {
-                var row = rows[3 + y];
+                int width = levelData.Width;
+                int height = levelData.Height;
+                GridSize = new Vector2Int(width, height);
 
-                for (int x = 0; x < width; x++)
+                Tiles = new TileView[width, height];
+
+                this.LevelData = levelData;
+                // Ground
+                for (int y = 0; y < height; y++)
                 {
-                    var tile = int.Parse(row[x].ToString()) - 1;
-                    InstantiateTile(x, y, tile);
-                }
-            }
+                    var row = rows[3 + y];
 
-            CenterCamera(height);
+                    for (int x = 0; x < width; x++)
+                    {
+                        var tile = int.Parse(row[x].ToString()) - 1;
+                        InstantiateTile(x, y, tile);
+                    }
+                }
+
+                CenterCamera(height);
+            };
         }
 
         private void CenterCamera(int levelHeight)

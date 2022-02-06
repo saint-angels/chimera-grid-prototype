@@ -19,6 +19,7 @@ namespace Tactics.Battle
             ActionInProgress,
         }
 
+        public Action<LevelData, string[]> OnLevelInit = (levelData, rows) => { };
         public Action<bool> OnBattleOver = (userWon) => { };
         public Action OnPlayerTurnEnded = () => { };
         public Action<EntityShell, Vector2Int, Vector2Int> OnCharacterMoved = (unit, oldPos, newPos) => { };
@@ -39,7 +40,7 @@ namespace Tactics.Battle
         private List<EntityShell> MovableUserUnits = new List<EntityShell>();
         private List<EntityShell> AttackingUserUnits = new List<EntityShell>();
 
-        public void Init(InputSystem inputSystem, GridNavigator gridNavigator, LevelView levelView)
+        public void Init(InputSystem inputSystem, GridNavigator gridNavigator)
         {
             MovableUserUnits = new List<EntityShell>();
             AttackingUserUnits = new List<EntityShell>();
@@ -57,7 +58,7 @@ namespace Tactics.Battle
                 TilesEntities = new EntityShell[width, height]
             };
 
-            levelView.Init(this, LevelData, rows);
+            OnLevelInit(LevelData, rows);
 
             // Parse the level data and init Entities
             for (int y = 0; y < height; y++)
@@ -106,7 +107,7 @@ namespace Tactics.Battle
 
                 EntityShell newEntity = GameObject.Instantiate(entityPrefab, Vector3.zero, Quaternion.identity, entityContainer);
                 newEntity.name = $"{type}_{faction}";
-                newEntity.Init(gridPosition, this, gridNavigator, type, faction, levelView);
+                newEntity.Init(gridPosition, this, gridNavigator, type, faction);
                 if (type == EntityType.Character)
                 {
                     string pathToConfig = "Configs/" + "DefaultCharacterConfig";

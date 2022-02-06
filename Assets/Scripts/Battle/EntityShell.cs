@@ -38,13 +38,11 @@ namespace Tactics.Battle
         private int maxHealth;
         //TODO: Entity shouldn't know about Step duration
         private float stepDuration = .2f;
-        private LevelView levelService;
         private GridNavigator gridNavigator;
         private BattleManager battleManager;
 
-        public void Init(Vector2Int gridPosition, BattleManager battleManager, GridNavigator gridNavigator, EntityType type, EntityFaction faction, LevelView levelService)
+        public void Init(Vector2Int gridPosition, BattleManager battleManager, GridNavigator gridNavigator, EntityType type, EntityFaction faction)
         {
-            this.levelService = levelService;
             this.gridNavigator = gridNavigator;
             this.battleManager = battleManager;
             GridPosition = gridPosition;
