@@ -6,8 +6,6 @@ using SharedData;
 using Tactics.Battle;
 using Tactics.Helpers;
 using Tactics.SharedData;
-using Tactics.View;
-using Tactics.View.Level;
 using UnityEngine;
 
 namespace Tactics.View.Level
@@ -15,8 +13,6 @@ namespace Tactics.View.Level
     public class LevelView
     {
         public LevelData LevelData;
-
-        public Vector2Int GridSize { get; private set; }
 
         private Sprite[] tileSprites;
         private GameObject tilePrefab;
@@ -65,7 +61,6 @@ namespace Tactics.View.Level
             {
                 int width = levelData.Width;
                 int height = levelData.Height;
-                GridSize = new Vector2Int(width, height);
 
                 Tiles = new TileView[width, height];
 
@@ -124,67 +119,6 @@ namespace Tactics.View.Level
                     Tiles[x, y].SetBreadCrumbVisible(false);
                 }
             }
-        }
-
-        public void PlayQuakeAnimation(int x, int y, int radius)
-        {
-            if (Time.realtimeSinceStartup < quakeAnimationCooldown)
-            {
-                return;
-            }
-
-            var calculatedTotalDurationOfAnimation = ((radius * 0.25f) * 0.5f) + 0.75f;
-            quakeAnimationCooldown = Time.realtimeSinceStartup + calculatedTotalDurationOfAnimation;
-
-            var center = new Vector2(x, y);
-            var current = Vector2.zero;
-
-            for (int y2 = y - radius; y2 <= y + radius; y2++)
-            {
-                for (int x2 = x - radius; x2 <= x + radius; x2++)
-                {
-                    if (x2 < 0 || x2 >= LevelData.Width ||
-                        y2 < 0 || y2 >= LevelData.Height)
-                    {
-                        continue;
-                    }
-
-                    current.x = x2;
-                    current.y = y2;
-
-                    var distance = Vector2.Distance(current, center);
-
-                    if (distance <= radius)
-                    {
-                        var tile = Tiles[x2, y2].transform;
-                        var originalY = tile.position.y;
-
-                        var delay = (distance * 0.25f) * 0.5f;
-
-                        var sequence = DOTween.Sequence();
-                        sequence.PrependInterval(delay);
-                        sequence.Append(tile.DOLocalMoveY(originalY + 0.1f, 0.25f).SetEase(Ease.OutBack));
-                        sequence.Append(tile.DOLocalMoveY(originalY - 0.1f, 0.25f).SetEase(Ease.OutBack));
-                        sequence.Append(tile.DOLocalMoveY(originalY, 0.25f));
-
-                        for (int i = 0; i < LevelData.Entities.Count; i++)
-                        {
-                            var entity = LevelData.Entities[i];
-                            if (entity.GridPosition == current)
-                            {
-                                var sequence2 = DOTween.Sequence();
-                                sequence2.PrependInterval(delay);
-                                var entityTransform = entity.gameObject.transform;
-                                sequence2.Append(entityTransform.DOLocalMoveY(originalY + 0.1f, 0.25f).SetEase(Ease.OutBack));
-                                sequence2.Append(entityTransform.DOLocalMoveY(originalY - 0.1f, 0.25f).SetEase(Ease.OutBack));
-                                sequence2.Append(entityTransform.DOLocalMoveY(originalY, 0.25f));
-                            }
-                        }
-                    }
-                }
-            }
-
-            Root.Audio.PlayQuake();
         }
     }
 }
